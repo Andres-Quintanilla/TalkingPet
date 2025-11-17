@@ -1,4 +1,3 @@
-// src/pages/Products.jsx
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import SEO from '../components/SEO';
@@ -35,7 +34,6 @@ export default function Products() {
         return () => { isMounted = false; };
     }, [pageFromUrl]);
 
-    // Filtro estático en front para imitar tu sidebar (búsqueda + categorías)
     const filtered = useMemo(() => {
         const query = q.trim().toLowerCase();
         const activeCats = Object.entries(cats).filter(([, v]) => v).map(([k]) => k);
@@ -73,7 +71,6 @@ export default function Products() {
                     <h1 className="products-page__title">Nuestros Productos</h1>
 
                     <div className="products-page__layout">
-                        {/* Sidebar de filtros (estático en front) */}
                         <aside className="sidebar" role="complementary" aria-label="Filtros de productos">
                             <div className="filter-group">
                                 <h2 className="filter-group__title">Búsqueda</h2>
@@ -107,14 +104,12 @@ export default function Products() {
                             </div>
 
                             <div className="filter-group">
-                                {/* Por ahora no hace request al backend; aplica filtros locales */}
                                 <button className="btn btn--primary btn--full" onClick={() => { /* noop */ }}>
                                     Aplicar Filtros
                                 </button>
                             </div>
                         </aside>
 
-                        {/* Lista de productos */}
                         <div className="products-content">
                             <div className="products-header">
                                 <p className="products-header__results">
@@ -131,7 +126,6 @@ export default function Products() {
                                 ))}
                             </div>
 
-                            {/* Paginación simple */}
                             {!loading && data.totalPages > 1 && (
                                 <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginTop: '1.5rem' }}>
                                     <button

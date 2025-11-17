@@ -1,7 +1,7 @@
 -- Usuarios de prueba
 INSERT INTO usuario (nombre, email, telefono, contrasena, rol)
 VALUES
-('Admin', 'admin@talkingpet.com', '+59170000001', '$2b$10$9e4aCqf7zM3qXjUX7h1hUu1yXRqkOQ0f0j5lqz8I7xJvBqvXwXw7K', 'admin'), -- pass: Admin123!
+('Admin', 'admin@talkingpet.com', '+59170000001', '$2b$10$9e4aCqf7zM3qXjUX7h1hUu1yXRqkOQ0f0j5lqz8I7xJvBqvXwXw7K', 'admin'),
 ('Empleado Vet', 'vet@talkingpet.com', '+59170000002', '$2b$10$9e4aCqf7zM3qXjUX7h1hUu1yXRqkOQ0f0j5lqz8I7xJvBqvXwXw7K', 'empleado_veterinario'),
 ('Cliente Demo', 'cliente@talkingpet.com', '+59170000003', '$2b$10$9e4aCqf7zM3qXjUX7h1hUu1yXRqkOQ0f0j5lqz8I7xJvBqvXwXw7K', 'cliente');
 

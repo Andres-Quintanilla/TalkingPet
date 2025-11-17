@@ -5,7 +5,6 @@ const api = axios.create({
     withCredentials: true,
 });
 
-// Token JWT desde localStorage
 api.interceptors.request.use((config) => {
     const tk = localStorage.getItem('tp_token');
     if (tk) config.headers.Authorization = `Bearer ${tk}`;

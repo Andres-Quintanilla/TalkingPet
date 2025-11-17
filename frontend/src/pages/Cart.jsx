@@ -1,4 +1,3 @@
-// src/pages/Cart.jsx
 import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import { useCart } from '../context/CartContext';
@@ -7,9 +6,8 @@ import { formatCurrency } from '../utils/format';
 export default function Cart() {
     const { items, setQty, remove } = useCart();
 
-    // Cálculos locales para replicar tu maqueta (subtotal + envío + total)
     const subtotal = items.reduce((acc, it) => acc + it.precio * it.qty, 0);
-    const shipping = items.length > 0 ? 15 : 0; // Bs. 15 como en tu ejemplo
+    const shipping = items.length > 0 ? 15 : 0; 
     const total = subtotal + shipping;
 
     return (
@@ -20,18 +18,15 @@ export default function Cart() {
                 url="http://localhost:5173/carrito"
             />
 
-            {/* Encabezado de página */}
             <div className="page-header">
                 <div className="container">
                     <h1 className="page-header__title">🛒 Carrito de Compras</h1>
                 </div>
             </div>
 
-            {/* Carrito */}
             <section className="cart-section">
                 <div className="container">
                     <div className="cart-layout">
-                        {/* Tabla de items */}
                         <div className="cart-items">
                             <table className="cart-table">
                                 <thead className="cart-table__head">
@@ -55,7 +50,6 @@ export default function Cart() {
 
                                     {items.map((it) => (
                                         <tr key={it.id}>
-                                            {/* Imagen (usa imagen_url si viene del backend; si no, un placeholder SVG como tu HTML) */}
                                             <td className="cart-item__image">
                                                 <img
                                                     src={
@@ -66,15 +60,12 @@ export default function Cart() {
                                                 />
                                             </td>
 
-                                            {/* Nombre */}
                                             <td className="cart-item__name">
                                                 {it.nombre}
                                             </td>
 
-                                            {/* Precio unitario */}
                                             <td className="cart-item__price">{formatCurrency(it.precio)}</td>
 
-                                            {/* Cantidad (controlado) */}
                                             <td className="cart-item__quantity">
                                                 <input
                                                     type="number"
@@ -89,12 +80,10 @@ export default function Cart() {
                                                 />
                                             </td>
 
-                                            {/* Subtotal por ítem */}
                                             <td className="cart-item__subtotal">
                                                 {formatCurrency(it.precio * it.qty)}
                                             </td>
 
-                                            {/* Quitar */}
                                             <td className="cart-item__remove">
                                                 <button
                                                     className="btn-remove"
@@ -111,7 +100,6 @@ export default function Cart() {
                             </table>
                         </div>
 
-                        {/* Resumen */}
                         <aside className="cart-summary">
                             <h2 className="cart-summary__title">Resumen del Pedido</h2>
 

@@ -1,18 +1,14 @@
-// src/routes/seo.routes.js
 import { Router } from 'express';
 
 const r = Router();
 
-// Ajusta esto a tu dominio público
 const BASE = process.env.PUBLIC_BASE_URL || 'http://localhost:5173';
 
-// Si luego conectas a PG, arma estas listas desde la DB (slugs reales)
 const staticPaths = [
     '/', '/productos', '/servicios', '/cursos',
     '/carrito', '/checkout', '/login', '/register'
 ];
 
-// Puedes mapear productos/servicios/cursos con slugs desde DB
 async function fetchDynamicPaths() {
     // TODO: reemplazar por consultas reales
     const productSlugs = ['alimento-premium-15kg', 'juguete-interactivo', 'cama-ortopedica', 'collar-gps'];
@@ -41,7 +37,6 @@ r.get('/sitemap.xml', async (_req, res) => {
     const all = [...staticPaths, ...dyn];
 
     const urls = all.map(p => {
-        // heurística simple: home se actualiza más
         const priority = p === '/' ? '1.0' : p.startsWith('/producto/') ? '0.9' : '0.8';
         const changefreq = p === '/' ? 'daily' : 'weekly';
 

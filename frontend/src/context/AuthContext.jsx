@@ -8,7 +8,6 @@ export const AuthProvider = ({ children }) => {
 
     const me = async () => {
         try {
-            // asegúrate que /api/users/me devuelve el objeto del usuario
             const { data } = await api.get('/api/users/me');
             setUser(data);
         } catch {
@@ -21,7 +20,6 @@ export const AuthProvider = ({ children }) => {
         if (tk) me();
     }, []);
 
-    // login(payload) acepta email O nombre + contraseña
     const login = async (payload) => {
         const { data } = await api.post('/api/auth/login', payload);
         localStorage.setItem('tp_token', data.token);

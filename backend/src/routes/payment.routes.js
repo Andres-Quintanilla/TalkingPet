@@ -5,7 +5,7 @@ import { createStripeSession, stripeWebhook, simulateQrPayment } from '../contro
 const r = Router();
 
 r.post('/stripe/create-session', requireAuth, createStripeSession);
-r.post('/stripe/webhook', stripeWebhook); // raw ya aplicado en index.js
+r.post('/stripe/webhook', stripeWebhook); 
 r.post('/simulate/qr', requireAuth, simulateQrPayment);
 
 export default r;

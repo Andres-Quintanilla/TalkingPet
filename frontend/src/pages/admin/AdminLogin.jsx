@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import SEO from '../components/SEO';
-import { useAuth } from '../context/AuthContext';
+import SEO from '../../components/SEO';
+import { useAuth } from '../../context/AuthContext';
 
 export default function AdminLogin() {
     const [emailOrUser, setV] = useState('');

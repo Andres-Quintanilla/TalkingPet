@@ -1,11 +1,37 @@
+// src/main.jsx
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { HelmetProvider } from 'react-helmet-async';
 import { BrowserRouter } from 'react-router-dom';
-import 'bootstrap/dist/css/bootstrap.min.css';   // Bootstrap
-import './styles/style.css';                    // Tu CSS unificado
-import 'leaflet/dist/leaflet.css'
 
+// --- CSS ---
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'leaflet/dist/leaflet.css';
+
+// CSS Globales
+import './styles/theme.css';
+import './styles/global.css';
+import './styles/utilities.css';
+
+// CSS de Componentes
+import './styles/header.css';
+import './styles/footer.css';
+import './styles/chatbot.css';
+import './styles/auth.css';
+import './styles/admin.css';
+import './styles/admin-medical.css';
+
+// CSS de Páginas
+import './styles/home.css';
+import './styles/products.css';
+import './styles/product-detail.css';
+import './styles/services.css';
+import './styles/courses.css';
+import './styles/cart.css'; // <-- Ahora existe
+import './styles/checkout.css'; // <-- Ahora existe
+import './styles/pet-profile.css';
+
+// --- Contextos ---
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import App from './App';

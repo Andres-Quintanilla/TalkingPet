@@ -16,11 +16,11 @@ export default function OrderTrack() {
             if (alive) setT(data);
         };
         load();
-        const iv = setInterval(load, 10000); // polling 10s
+        const iv = setInterval(load, 10000); 
         return () => { alive = false; clearInterval(iv); };
     }, [id]);
 
-    const center = t?.lat && t?.lng ? [t.lat, t.lng] : [-17.7833, -63.1821]; // SCZ
+    const center = t?.lat && t?.lng ? [t.lat, t.lng] : [-17.7833, -63.1821]; 
 
     return (
         <>

@@ -37,7 +37,6 @@ export default function ProductCard({ p }) {
                         Agregar
                     </button>
 
-                    {/* 👇 corregido: /productos/:id */}
                     <Link to={`/productos/${p.id}`} className="btn btn--outline-primary btn--sm">
                         Ver detalle
                     </Link>

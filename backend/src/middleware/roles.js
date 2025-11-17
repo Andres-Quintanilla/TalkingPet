@@ -5,3 +5,7 @@ export function requireRole(...roles) {
         next();
     };
 }
+
+export function isAdmin(req, res, next) {
+    return requireRole('admin')(req, res, next);
+}

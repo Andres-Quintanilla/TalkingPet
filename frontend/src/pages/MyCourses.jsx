@@ -1,33 +1,104 @@
+// src/pages/MyCourses.jsx
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import api from '../api/axios';
+import { formatCurrency } from '../utils/format';
 
 export default function MyCourses() {
-    const [items, setItems] = useState([]);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        (async () => {
-            const { data } = await api.get('/api/courses/mine');
-            setItems(data);
-        })();
-    }, []);
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setLoading(true);
+        const { data } = await api.get('/api/courses/mine');
+        setItems(data);
+      } catch (error) {
+        console.error('Error fetching my courses:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCourses();
+  }, []);
 
-    return (
-        <>
-            <SEO title="Mis cursos" description="Tus cursos comprados" url="http://localhost:5173/mis-cursos" />
-            <section className="container">
-                <h1 className="section-title">Mis cursos</h1>
-                <div className="courses-grid">
-                    {items.map(c => (
-                        <article key={c.id} className="course-card">
-                            <div className="course-card__icon" aria-hidden>🎓</div>
-                            <h3 className="course-card__title">{c.titulo}</h3>
-                            <p>Progreso: {c.progreso}%</p>
-                        </article>
-                    ))}
-                    {!items.length && <p>No tienes cursos aún.</p>}
-                </div>
-            </section>
-        </>
-    );
+  return (
+    <>
+      <SEO
+        title="Mis Cursos - TalkingPet"
+        description="Accede a todos los cursos que has comprado o a los que te has inscrito."
+        url="http://localhost:5173/mis-cursos"
+      />
+
+      <main className="main" role="main">
+        <section className="page-header">
+          <div className="container">
+            <h1 className="page-header__title">Mis Cursos</h1>
+            <p className="page-header__subtitle">
+              Aquí encontrarás todos tus cursos virtuales y talleres presenciales.
+            </p>
+          </div>
+        </section>
+
+        <section className="courses-page">
+          <div className="container">
+            {loading && (
+              <div className="loading-state">
+                <div className="spinner"></div>
+                <p>Cargando tus cursos...</p>
+              </div>
+            )}
+
+            {!loading && items.length === 0 && (
+              <div className="empty-state">
+                <p>No estás inscrito en ningún curso.</p>
+                <Link to="/cursos" className="btn btn--primary">
+                  Ver Cursos Disponibles
+                </Link>
+              </div>
+            )}
+
+            <div className="courses-grid">
+              {!loading &&
+                items.map((c) => (
+                  <article key={c.id} className="course-card">
+                    <div className="course-card__icon" aria-hidden>
+                      {c.modalidad === 'virtual' ? '💻' : '🐾'}
+                    </div>
+                    <h3 className="course-card__title">{c.titulo}</h3>
+                    
+                    <ul className="course-card__details">
+                       <li>
+                        <strong>Modalidad:</strong>{' '}
+                        <span className={`badge ${
+                          c.modalidad === 'presencial' ? 'badge--accent' : 'badge--primary'
+                        }`}>
+                          {c.modalidad}
+                        </span>
+                      </li>
+                       <li>
+                        <strong>Progreso:</strong> {c.progreso}%
+                      </li>
+                       <li>
+                        <strong>Pagado:</strong> {formatCurrency(c.precio_snapshot)}
+                      </li>
+                    </ul>
+
+                    <Link
+                      to={c.modalidad === 'virtual' ? `/mis-cursos/${c.curso_id}/ver` : '#'}
+                      className={`btn ${c.modalidad === 'virtual' ? 'btn--primary' : 'btn--secondary btn--disabled'}`}
+                      title={c.modalidad === 'presencial' ? 'Taller presencial, no requiere visor' : 'Empezar a ver'}
+                    >
+                      {c.modalidad === 'virtual' ? 'Empezar a ver' : 'Inscripción Confirmada'}
+                    </Link>
+                  </article>
+                ))}
+            </div>
+          </div>
+        </section>
+      </main>
+    </>
+  );
 }
