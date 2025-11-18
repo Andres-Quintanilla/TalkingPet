@@ -1,4 +1,3 @@
-// src/pages/admin/AdminDashboard.jsx
 import { useEffect, useState } from 'react';
 import api from '../../api/axios';
 import { formatCurrency } from '../../utils/format';
@@ -29,7 +28,6 @@ export default function AdminDashboard() {
 
     const load = async () => {
       try {
-        // Pedimos todo en paralelo
         const [
           usersRes,
           productsRes,
@@ -42,13 +40,12 @@ export default function AdminDashboard() {
           api.get('/api/products'),
           api.get('/api/services'),
           api.get('/api/courses'),
-          api.get('/api/orders'),       // lista de pedidos (admin)
-          api.get('/api/bookings/all'), // lista de citas (admin/empleado)
+          api.get('/api/orders'),
+          api.get('/api/bookings/all'),
         ]);
 
         if (!mounted) return;
 
-        // 👇 Normalizamos respuestas dependiendo del shape del backend
         const usersData = usersRes.data;
         const usersRaw = Array.isArray(usersData)
           ? usersData
@@ -64,7 +61,6 @@ export default function AdminDashboard() {
         const orders = ordersRes.data || [];
         const bookings = bookingsRes.data || [];
 
-        // Cálculos por rol
         const clientsCount = usersRaw.filter((u) => u.rol === 'cliente').length;
         const adminsCount = usersRaw.filter((u) => u.rol === 'admin').length;
         const employeesCount = usersRaw.filter(
@@ -126,9 +122,7 @@ export default function AdminDashboard() {
 
       {!loading && !error && (
         <div className="admin-dashboard">
-          {/* KPIs principales */}
           <section className="admin-kpi-grid">
-            {/* Clientes */}
             <article className="admin-kpi-card">
               <p className="admin-kpi-label">Clientes</p>
               <p className="admin-kpi-value">{totals.clients}</p>
@@ -137,7 +131,6 @@ export default function AdminDashboard() {
               </p>
             </article>
 
-            {/* Empleados */}
             <article className="admin-kpi-card">
               <p className="admin-kpi-label">Empleados</p>
               <p className="admin-kpi-value">{totals.employees}</p>
@@ -146,7 +139,6 @@ export default function AdminDashboard() {
               </p>
             </article>
 
-            {/* Administradores */}
             <article className="admin-kpi-card">
               <p className="admin-kpi-label">Administradores</p>
               <p className="admin-kpi-value">{totals.admins}</p>
@@ -155,14 +147,12 @@ export default function AdminDashboard() {
               </p>
             </article>
 
-            {/* Productos */}
             <article className="admin-kpi-card">
               <p className="admin-kpi-label">Productos activos</p>
               <p className="admin-kpi-value">{totals.products}</p>
               <p className="admin-kpi-sub">En catálogo de la tienda</p>
             </article>
 
-            {/* Servicios */}
             <article className="admin-kpi-card">
               <p className="admin-kpi-label">Servicios</p>
               <p className="admin-kpi-value">{totals.services}</p>
@@ -171,7 +161,6 @@ export default function AdminDashboard() {
               </p>
             </article>
 
-            {/* Cursos */}
             <article className="admin-kpi-card">
               <p className="admin-kpi-label">Cursos</p>
               <p className="admin-kpi-value">{totals.courses}</p>
@@ -180,7 +169,6 @@ export default function AdminDashboard() {
               </p>
             </article>
 
-            {/* Pedidos */}
             <article className="admin-kpi-card">
               <p className="admin-kpi-label">Pedidos</p>
               <p className="admin-kpi-value">{totals.orders}</p>
@@ -189,7 +177,6 @@ export default function AdminDashboard() {
               </p>
             </article>
 
-            {/* Citas */}
             <article className="admin-kpi-card">
               <p className="admin-kpi-label">Citas</p>
               <p className="admin-kpi-value">{totals.bookings}</p>
@@ -199,7 +186,6 @@ export default function AdminDashboard() {
             </article>
           </section>
 
-          {/* Listas: pedidos y citas */}
           <section className="admin-dashboard__grid">
             <article className="admin-panel">
               <header className="admin-panel__header">

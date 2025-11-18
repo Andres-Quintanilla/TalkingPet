@@ -7,7 +7,12 @@ import ProductCard from '../components/ProductCard';
 const PAGE_SIZE = Number(import.meta.env.VITE_PAGE_SIZE || 12);
 
 export default function Products() {
-    const [data, setData] = useState({ items: [], page: 1, totalPages: 1, count: 0 });
+    const [data, setData] = useState({
+        items: [],
+        page: 1,
+        totalPages: 1,
+        count: 0,
+    });
     const [loading, setLoading] = useState(true);
     const [q, setQ] = useState('');
     const [cats, setCats] = useState({
@@ -22,35 +27,73 @@ export default function Products() {
 
     useEffect(() => {
         let isMounted = true;
+
         (async () => {
             setLoading(true);
             try {
-                const { data } = await api.get(`/api/products?page=${pageFromUrl}&limit=${PAGE_SIZE}`);
-                if (isMounted) setData(data);
+                const { data } = await api.get('/api/products', {
+                    params: {
+                        page: pageFromUrl,
+                        limit: PAGE_SIZE,
+                        _ts: Date.now(),
+                    },
+                });
+
+                const items = Array.isArray(data?.items)
+                    ? data.items
+                    : Array.isArray(data)
+                        ? data
+                        : [];
+
+                const page = Number(data.page || pageFromUrl || 1);
+                const total = Number(data.total || items.length);
+                const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+                if (isMounted) {
+                    setData({
+                        items,
+                        page,
+                        totalPages,
+                        count: total,
+                    });
+                }
             } finally {
                 if (isMounted) setLoading(false);
             }
         })();
-        return () => { isMounted = false; };
+
+        return () => {
+            isMounted = false;
+        };
     }, [pageFromUrl]);
 
     const filtered = useMemo(() => {
         const query = q.trim().toLowerCase();
-        const activeCats = Object.entries(cats).filter(([, v]) => v).map(([k]) => k);
-        return data.items.filter(p => {
-            const matchQ =
-                !query ||
-                p.nombre?.toLowerCase().includes(query) ||
-                p.descripcion?.toLowerCase().includes(query);
-            const matchCat = !activeCats.length || activeCats.includes(p.categoria || '');
-            return matchQ && matchCat;
-        });
+        const activeCats = Object.entries(cats)
+            .filter(([, v]) => v)
+            .map(([k]) => k);
+
+        return data.items
+            .filter((p) => p.estado === 'publicado')
+            .filter((p) => {
+                const matchQ =
+                    !query ||
+                    p.nombre?.toLowerCase().includes(query) ||
+                    p.descripcion?.toLowerCase().includes(query);
+                const matchCat =
+                    !activeCats.length || activeCats.includes(p.categoria || '');
+                return matchQ && matchCat;
+            });
     }, [data.items, q, cats]);
 
-    const toggleCat = (name) => setCats(prev => ({ ...prev, [name]: !prev[name] }));
+    const toggleCat = (name) =>
+        setCats((prev) => ({
+            ...prev,
+            [name]: !prev[name],
+        }));
 
     const setPage = (n) => {
-        setSp(prev => {
+        setSp((prev) => {
             const next = new URLSearchParams(prev);
             next.set('page', String(n));
             return next;
@@ -71,7 +114,11 @@ export default function Products() {
                     <h1 className="products-page__title">Nuestros Productos</h1>
 
                     <div className="products-page__layout">
-                        <aside className="sidebar" role="complementary" aria-label="Filtros de productos">
+                        <aside
+                            className="sidebar"
+                            role="complementary"
+                            aria-label="Filtros de productos"
+                        >
                             <div className="filter-group">
                                 <h2 className="filter-group__title">Búsqueda</h2>
                                 <div className="filter-group__content">
@@ -104,7 +151,11 @@ export default function Products() {
                             </div>
 
                             <div className="filter-group">
-                                <button className="btn btn--primary btn--full" onClick={() => { /* noop */ }}>
+                                <button
+                                    className="btn btn--primary btn--full"
+                                    onClick={() => {
+                                    }}
+                                >
                                     Aplicar Filtros
                                 </button>
                             </div>
@@ -113,21 +164,30 @@ export default function Products() {
                         <div className="products-content">
                             <div className="products-header">
                                 <p className="products-header__results">
-                                    {loading
-                                        ? 'Cargando...'
-                                        : <>Mostrando <strong>{filtered.length} resultados</strong></>
-                                    }
+                                    {loading ? (
+                                        'Cargando...'
+                                    ) : (
+                                        <>
+                                            Mostrando <strong>{filtered.length} resultados</strong>
+                                        </>
+                                    )}
                                 </p>
                             </div>
 
                             <div className="products-grid">
-                                {!loading && filtered.map((p) => (
-                                    <ProductCard key={p.id} p={p} />
-                                ))}
+                                {!loading &&
+                                    filtered.map((p) => <ProductCard key={p.id} p={p} />)}
                             </div>
 
                             {!loading && data.totalPages > 1 && (
-                                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginTop: '1.5rem' }}>
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        gap: '0.5rem',
+                                        justifyContent: 'center',
+                                        marginTop: '1.5rem',
+                                    }}
+                                >
                                     <button
                                         className="btn btn--outline-primary"
                                         onClick={() => setPage(Math.max(1, data.page - 1))}
@@ -140,7 +200,9 @@ export default function Products() {
                                     </span>
                                     <button
                                         className="btn btn--outline-primary"
-                                        onClick={() => setPage(Math.min(data.totalPages, data.page + 1))}
+                                        onClick={() =>
+                                            setPage(Math.min(data.totalPages, data.page + 1))
+                                        }
                                         disabled={data.page >= data.totalPages}
                                     >
                                         Siguiente →

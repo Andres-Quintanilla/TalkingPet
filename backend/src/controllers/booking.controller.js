@@ -1,4 +1,3 @@
-// src/controllers/booking.controller.js
 import { pool } from '../config/db.js';
 import { bookingSchema } from '../validators/booking.validator.js';
 
@@ -46,7 +45,6 @@ export async function mine(req, res, next) {
   }
 }
 
-// --- NUEVO (Para dashboard de Admin/Empleados) ---
 export async function listAll(req, res, next) {
   try {
     const { rol } = req.user;
@@ -66,11 +64,10 @@ export async function listAll(req, res, next) {
     `;
     const params = [];
 
-    // Si no es admin, filtramos por tipo de empleado
     if (rol !== 'admin') {
       let tipoServicio;
       if (rol === 'empleado_veterinario') tipoServicio = 'veterinaria';
-      else if (rol === 'empleado_peluquero') tipoServicio = 'peluqueria'; // o 'baño'
+      else if (rol === 'empleado_peluquero') tipoServicio = 'peluqueria'; 
       else if (rol === 'empleado_adiestrador') tipoServicio = 'adiestramiento';
 
       if (tipoServicio === 'peluqueria') {
@@ -79,7 +76,7 @@ export async function listAll(req, res, next) {
         params.push(tipoServicio);
         query += ` WHERE s.tipo = $1`;
       } else {
-        query += ` WHERE 1=0`; // Rol desconocido, no mostrar nada
+        query += ` WHERE 1=0`;
       }
     }
 
@@ -106,7 +103,6 @@ export async function updateStatus(req, res, next) {
   }
 }
 
-// --- NUEVA FUNCIÓN (Para agendar dinámicamente) ---
 export async function getAvailability(req, res, next) {
   try {
     const { fecha, servicio_id } = req.query;
@@ -116,7 +112,6 @@ export async function getAvailability(req, res, next) {
         .json({ error: 'Fecha y servicio_id son requeridos' });
     }
 
-    // 1. Obtener duración del servicio
     const { rows: serviceRows } = await pool.query(
       'SELECT duracion_minutos FROM servicio WHERE id = $1',
       [servicio_id]
@@ -126,7 +121,6 @@ export async function getAvailability(req, res, next) {
     }
     const duracion = serviceRows[0].duracion_minutos;
 
-    // 2. Obtener todas las citas confirmadas para ese día
     const { rows: citas } = await pool.query(
       `SELECT c.hora, s.duracion_minutos 
        FROM cita c
@@ -135,11 +129,10 @@ export async function getAvailability(req, res, next) {
       [fecha]
     );
 
-    // 3. Definir horarios de trabajo (9:00 a 17:30)
     const horariosDisponibles = [];
     const horaInicio = 9;
-    const horaFin = 18; // 6 PM
-    const slotMinutos = 30; // Revisar disponibilidad cada 30 min
+    const horaFin = 18; 
+    const slotMinutos = 30; 
 
     for (let H = horaInicio; H < horaFin; H++) {
       for (let M = 0; M < 60; M += slotMinutos) {
@@ -193,7 +186,6 @@ export async function getAvailability(req, res, next) {
 
 export async function getAdminSummary(req, res, next) {
   try {
-    // KPIs de citas
     const { rows: kpiRows } = await pool.query(`
       SELECT
         COUNT(*) AS total_citas,
@@ -203,7 +195,6 @@ export async function getAdminSummary(req, res, next) {
       FROM cita
     `);
 
-    // Últimas 5 citas
     const { rows: recientes } = await pool.query(`
       SELECT
         c.id,

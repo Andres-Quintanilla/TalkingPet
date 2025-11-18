@@ -1,10 +1,8 @@
-// src/main.jsx
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { HelmetProvider } from 'react-helmet-async';
 import { BrowserRouter } from 'react-router-dom';
 
-// --- CSS ---
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'leaflet/dist/leaflet.css';
 
@@ -27,8 +25,8 @@ import './styles/products.css';
 import './styles/product-detail.css';
 import './styles/services.css';
 import './styles/courses.css';
-import './styles/cart.css'; // <-- Ahora existe
-import './styles/checkout.css'; // <-- Ahora existe
+import './styles/cart.css'; 
+import './styles/checkout.css'; 
 import './styles/pet-profile.css';
 
 // --- Contextos ---

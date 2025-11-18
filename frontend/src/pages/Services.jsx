@@ -1,11 +1,9 @@
-// src/pages/Services.jsx
 import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import { useEffect, useState } from 'react';
 import api from '../api/axios';
 import { formatCurrency } from '../utils/format';
 
-// Iconos para cada tipo de servicio
 const serviceIcons = {
   baño: '🛁',
   peluqueria: '✂️',
@@ -21,8 +19,10 @@ export default function Services() {
     const fetchServicios = async () => {
       try {
         setLoading(true);
-        const { data } = await api.get('/api/services');
-        setServicios(data);
+        const { data } = await api.get('/api/services', {
+          params: { _ts: Date.now() },
+        });
+        setServicios(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error('Error fetching services:', error);
       } finally {
@@ -69,17 +69,33 @@ export default function Services() {
               {!loading &&
                 servicios.map((s) => (
                   <article key={s.id} className="service-card">
-                    <div className="service-card__icon" aria-hidden="true">
-                      {serviceIcons[s.tipo] || '🐾'}
+                    <div className="service-card__media">
+                      {s.imagen_url ? (
+                        <img
+                          src={s.imagen_url}
+                          alt={s.nombre}
+                          className="service-card__img"
+                        />
+                      ) : (
+                        <div className="service-card__icon" aria-hidden="true">
+                          {serviceIcons[s.tipo] || '🐾'}
+                        </div>
+                      )}
                     </div>
+
                     <h3 className="service-card__title">{s.nombre}</h3>
-                    <p className="service-card__description">{s.descripcion}</p>
-                    <p className="service-card__price">
-                      Desde {formatCurrency(s.precio_base)}
+
+                    <p className="service-card__description">
+                      {s.descripcion || 'Servicio para el bienestar de tu mascota.'}
                     </p>
+
+                    <p className="service-card__price">
+                      Desde {formatCurrency(Number(s.precio_base || 0))}
+                    </p>
+
                     <Link
                       to="/agendar"
-                      state={{ servicioId: s.id }} // Pre-selecciona el servicio
+                      state={{ servicioId: s.id }}
                       className="btn btn--primary"
                     >
                       Agendar Ahora

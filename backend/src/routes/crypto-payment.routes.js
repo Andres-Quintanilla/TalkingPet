@@ -1,4 +1,3 @@
-// backend/src/routes/crypto-payment.routes.js
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.js';
 import { isAdmin } from '../middleware/roles.js';

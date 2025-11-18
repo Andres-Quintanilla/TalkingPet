@@ -1,4 +1,3 @@
-// src/pages/Booking.jsx
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import SEO from '../components/SEO';
 import { useEffect, useState } from 'react';
@@ -6,15 +5,13 @@ import api from '../api/axios';
 import { formatCurrency } from '../utils/format';
 
 export default function Booking() {
-  const location = useLocation(); // Para recibir el servicio pre-seleccionado
+  const location = useLocation();
   const navigate = useNavigate();
 
-  // --- Estados del formulario ---
   const [servicios, setServicios] = useState([]);
   const [mascotas, setMascotas] = useState([]);
   const [horarios, setHorarios] = useState([]);
-  
-  // --- Estados de selección ---
+
   const [servicioId, setServicioId] = useState(location.state?.servicioId || '');
   const [mascotaId, setMascotaId] = useState('');
   const [modalidad, setModalidad] = useState('local');
@@ -22,7 +19,6 @@ export default function Booking() {
   const [hora, setHora] = useState('');
   const [comentarios, setComentarios] = useState('');
 
-  // --- Estados de UI ---
   const [loadingServicios, setLoadingServicios] = useState(true);
   const [loadingMascotas, setLoadingMascotas] = useState(true);
   const [loadingHorarios, setLoadingHorarios] = useState(false);
@@ -30,9 +26,8 @@ export default function Booking() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const today = new Date().toISOString().split('T')[0]; // Formato YYYY-MM-DD
+  const today = new Date().toISOString().split('T')[0];
 
-  // Cargar servicios y mascotas del usuario al montar
   useEffect(() => {
     const loadInitialData = async () => {
       try {
@@ -50,7 +45,7 @@ export default function Booking() {
         const { data: petData } = await api.get('/api/medical/mis-mascotas');
         setMascotas(petData);
         if (petData.length === 1) {
-          setMascotaId(petData[0].id); // Auto-seleccionar si solo tiene 1
+          setMascotaId(petData[0].id);
         }
       } catch (err) {
         setError('No se pudieron cargar tus mascotas.', err);
@@ -61,16 +56,15 @@ export default function Booking() {
     loadInitialData();
   }, []);
 
-  // Buscar horarios disponibles cuando cambie la fecha o el servicio
   useEffect(() => {
     if (!fecha || !servicioId) {
-      setHorarios([]); // Limpiar horarios si no hay fecha o servicio
+      setHorarios([]);
       return;
     }
 
     const fetchAvailability = async () => {
       setLoadingHorarios(true);
-      setHora(''); // Resetear hora seleccionada
+      setHora('');
       try {
         const { data } = await api.get(
           `/api/bookings/availability?fecha=${fecha}&servicio_id=${servicioId}`
@@ -93,43 +87,41 @@ export default function Booking() {
   }, [fecha, servicioId]);
 
 
-  // Enviar el formulario
   const onSubmit = async (e) => {
     e.preventDefault();
     if (!servicioId || !mascotaId || !modalidad || !fecha || !hora) {
-        setError('Por favor completa todos los campos requeridos.');
-        return;
+      setError('Por favor completa todos los campos requeridos.');
+      return;
     }
-    
+
     setLoadingSubmit(true);
     setError('');
     setSuccess('');
-    
+
     try {
-        await api.post('/api/bookings', {
-            servicio_id: Number(servicioId),
-            mascota_id: Number(mascotaId),
-            modalidad,
-            fecha,
-            hora,
-            comentarios
-        });
-        setSuccess('¡Cita agendada! Revisa "Mis Servicios" para ver el estado.');
-        // Limpiar formulario
-        setServicioId('');
-        setMascotaId('');
-        setFecha('');
-        setHora('');
-        setComentarios('');
-        setHorarios([]);
-        // Redirigir después de 3 seg
-        setTimeout(() => navigate('/mis-servicios'), 3000); 
+      await api.post('/api/bookings', {
+        servicio_id: Number(servicioId),
+        mascota_id: Number(mascotaId),
+        modalidad,
+        fecha,
+        hora,
+        comentarios
+      });
+      setSuccess('¡Cita agendada! Revisa "Mis Servicios" para ver el estado.');
+      setServicioId('');
+      setMascotaId('');
+      setFecha('');
+      setHora('');
+      setComentarios('');
+      setHorarios([]);
+      setTimeout(() => navigate('/mis-citas'), 3000);
+
 
     } catch (err) {
-        console.error('Error creating booking:', err);
-        setError(err.response?.data?.error || 'No se pudo agendar la cita.');
+      console.error('Error creating booking:', err);
+      setError(err.response?.data?.error || 'No se pudo agendar la cita.');
     } finally {
-        setLoadingSubmit(false);
+      setLoadingSubmit(false);
     }
   };
 
@@ -167,7 +159,6 @@ export default function Booking() {
                   {error && <p className="form-error">{error}</p>}
                   {success && <p className="form-success">{success}</p>}
 
-                  {/* --- PASO 1: MASCOTA --- */}
                   <fieldset className="form-fieldset">
                     <legend className="form-fieldset__legend">1. Tu Mascota</legend>
                     <div className="form-group">
@@ -193,15 +184,14 @@ export default function Booking() {
                         ))}
                       </select>
                       {mascotas.length === 0 && !loadingMascotas && (
-                         <p className="form-note">
-                            No tienes mascotas registradas. 
-                            <Link to="/mis-mascotas" className="breadcrumb__link"> Registra una aquí</Link>.
-                         </p>
+                        <p className="form-note">
+                          No tienes mascotas registradas.
+                          <Link to="/mis-mascotas" className="breadcrumb__link"> Registra una aquí</Link>.
+                        </p>
                       )}
                     </div>
                   </fieldset>
 
-                  {/* --- PASO 2: SERVICIO --- */}
                   <fieldset className="form-fieldset">
                     <legend className="form-fieldset__legend">2. Servicio</legend>
                     <div className="form-group">
@@ -264,12 +254,11 @@ export default function Booking() {
                       </div>
                     </div>
                   </fieldset>
-                  
-                  {/* --- PASO 3: FECHA Y HORA --- */}
+
                   <fieldset className="form-fieldset" disabled={!servicioId}>
                     <legend className="form-fieldset__legend">3. Fecha y Hora</legend>
-                     {!servicioId && <p className="form-note">Selecciona un servicio para ver la disponibilidad.</p>}
-                    
+                    {!servicioId && <p className="form-note">Selecciona un servicio para ver la disponibilidad.</p>}
+
                     <div className="form-row">
                       <div className="form-group">
                         <label htmlFor="fecha" className="form-label">
@@ -303,36 +292,35 @@ export default function Booking() {
                             {loadingHorarios ? 'Buscando...' : 'Elige un horario'}
                           </option>
                           {horarios.map((h) => (
-                             <option key={h} value={h}>{h}</option>
+                            <option key={h} value={h}>{h}</option>
                           ))}
                         </select>
                       </div>
                     </div>
                   </fieldset>
 
-                  {/* --- PASO 4: COMENTARIOS --- */}
                   <fieldset className="form-fieldset">
-                     <legend className="form-fieldset__legend">4. Comentarios</legend>
-                     <div className="form-group">
-                        <label htmlFor="comentarios" className="form-label">
-                          ¿Algo que debamos saber?
-                        </label>
-                        <textarea
-                          id="comentarios"
-                          name="comentarios"
-                          className="form-input form-input--textarea"
-                          rows="3"
-                          value={comentarios}
-                          onChange={(e) => setComentarios(e.target.value)}
-                          placeholder="Ej: Mi perro se pone nervioso con la secadora."
-                        ></textarea>
-                     </div>
+                    <legend className="form-fieldset__legend">4. Comentarios</legend>
+                    <div className="form-group">
+                      <label htmlFor="comentarios" className="form-label">
+                        ¿Algo que debamos saber?
+                      </label>
+                      <textarea
+                        id="comentarios"
+                        name="comentarios"
+                        className="form-input form-input--textarea"
+                        rows="3"
+                        value={comentarios}
+                        onChange={(e) => setComentarios(e.target.value)}
+                        placeholder="Ej: Mi perro se pone nervioso con la secadora."
+                      ></textarea>
+                    </div>
                   </fieldset>
 
 
                   <div className="form-actions">
-                    <button 
-                      type="submit" 
+                    <button
+                      type="submit"
                       className="btn btn--primary btn--lg btn--full"
                       disabled={loadingSubmit || !hora || !mascotaId}
                     >

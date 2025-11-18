@@ -1,4 +1,3 @@
-// backend/src/services/chatbot-intelligence.service.js
 import { pool } from "../config/db.js";
 
 /**

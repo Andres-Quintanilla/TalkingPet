@@ -122,6 +122,12 @@
   gap: var(--space-sm);
 }
 
+.admin-table .badge--neutral {
+  background-color: var(--color-bg-alt);  /* fondo clarito */
+  color: var(--color-text);               /* texto oscuro/normal */
+  border: 1px solid var(--color-border);
+}
+
 .admin-form {
   max-width: 800px;
   background: var(--color-bg);
@@ -142,6 +148,62 @@
 }
 .admin-form .form-actions {
   margin-top: 1.5rem;
+}
+
+/* ---- Image uploader (admin productos) ---- */
+
+.image-uploader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.image-uploader__dropzone {
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  text-align: center;
+  cursor: pointer;
+  background: var(--color-bg-alt);
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.image-uploader__dropzone:hover {
+  border-color: var(--color-primary);
+  background: var(--color-bg);
+}
+
+.image-uploader__text {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-light);
+}
+
+.image-uploader__uploading {
+  margin-top: var(--space-xs);
+  font-size: var(--font-size-sm);
+}
+
+.image-uploader__url {
+  margin-top: var(--space-sm);
+}
+
+.image-uploader__preview {
+  margin-top: var(--space-sm);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  padding: var(--space-sm);
+  background: var(--color-bg-alt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-uploader__preview img {
+  max-width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  display: block;
 }
 
 /* Tema oscuro admin */

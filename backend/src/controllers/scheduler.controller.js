@@ -1,4 +1,3 @@
-// backend/src/controllers/scheduler.controller.js
 import { ejecutarManualmente, obtenerEstadoTareas } from '../services/scheduler.service.js';
 import { 
   recordatoriosVacunas, 
@@ -9,9 +8,7 @@ import {
   limpiarNotificacionesAntiguas
 } from '../services/automated-reminders.service.js';
 
-/**
- * Obtener estado de todas las tareas programadas
- */
+
 export async function getSchedulerStatus(req, res) {
   try {
     const tareas = obtenerEstadoTareas();
@@ -33,9 +30,6 @@ export async function getSchedulerStatus(req, res) {
   }
 }
 
-/**
- * Ejecutar manualmente todos los recordatorios (testing)
- */
 export async function runAllReminders(req, res) {
   try {
     console.log('🔧 Ejecutando todos los recordatorios manualmente...');
@@ -55,9 +49,6 @@ export async function runAllReminders(req, res) {
   }
 }
 
-/**
- * Ejecutar recordatorios de vacunas manualmente
- */
 export async function runVaccineReminders(req, res) {
   try {
     const resultados = await recordatoriosVacunas();
@@ -71,9 +62,6 @@ export async function runVaccineReminders(req, res) {
   }
 }
 
-/**
- * Ejecutar recordatorios de baño manualmente
- */
 export async function runBathReminders(req, res) {
   try {
     const resultados = await recordatoriosBano();
@@ -87,9 +75,6 @@ export async function runBathReminders(req, res) {
   }
 }
 
-/**
- * Ejecutar recordatorios de restock manualmente
- */
 export async function runRestockReminders(req, res) {
   try {
     const resultados = await recordatoriosRestock();
@@ -103,9 +88,6 @@ export async function runRestockReminders(req, res) {
   }
 }
 
-/**
- * Ejecutar recordatorios de cumpleaños manualmente
- */
 export async function runBirthdayReminders(req, res) {
   try {
     const resultados = await recordatoriosCumpleanos();
@@ -119,9 +101,6 @@ export async function runBirthdayReminders(req, res) {
   }
 }
 
-/**
- * Ejecutar recordatorios de citas manualmente
- */
 export async function runAppointmentReminders(req, res) {
   try {
     const resultados = await recordatoriosCitas();
@@ -135,9 +114,6 @@ export async function runAppointmentReminders(req, res) {
   }
 }
 
-/**
- * Limpiar notificaciones antiguas
- */
 export async function cleanOldNotifications(req, res) {
   try {
     const eliminadas = await limpiarNotificacionesAntiguas();

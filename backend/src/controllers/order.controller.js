@@ -36,7 +36,6 @@ export async function checkoutFromCart(req, res, next) {
     await client.query('COMMIT');
     res.status(201).json({ order });
   } catch (e) {
-    // 🔴 Antes estaba pool.query('ROLLBACK'), aquí debe ser el client
     await client.query('ROLLBACK');
     next(e);
   } finally {
@@ -58,7 +57,6 @@ export async function myOrders(req, res, next) {
 
 export async function getById(req, res, next) {
   try {
-    // 👇 Aseguramos que el id sea numérico
     const id = Number(req.params.id);
     if (Number.isNaN(id)) {
       return res.status(400).json({ error: 'ID de pedido inválido' });
@@ -108,7 +106,6 @@ export async function track(req, res, next) {
 
 export async function getAdminSummary(req, res, next) {
   try {
-    // KPIs
     const { rows: kpiRows } = await pool.query(`
       SELECT
         COUNT(*)                                        AS total_pedidos,
@@ -117,7 +114,6 @@ export async function getAdminSummary(req, res, next) {
       FROM pedido
     `);
 
-    // Últimos 5 pedidos
     const { rows: recientes } = await pool.query(`
       SELECT
         p.id,

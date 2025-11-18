@@ -1,20 +1,63 @@
-// src/pages/Home.jsx
 import { useEffect, useState } from 'react';
 import SEO from '../components/SEO';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import ProductCard from '../components/ProductCard';
+import { formatCurrency } from '../utils/format';
+
+const serviceIcons = {
+    baño: '🛁',
+    peluqueria: '✂️',
+    veterinaria: '⚕️',
+    adiestramiento: '🎓',
+};
+
+const courseIcons = {
+    virtual: '💻',
+    presencial: '🎓',
+};
 
 export default function Home() {
     const [destacados, setDestacados] = useState([]);
+    const [servicios, setServicios] = useState([]);
+    const [cursos, setCursos] = useState([]);
 
     useEffect(() => {
         (async () => {
             try {
-                const { data } = await api.get('/api/products?page=1&limit=4');
-                setDestacados(Array.isArray(data.items) ? data.items : data.slice(0, 4));
+                const { data: prodData } = await api.get(
+                    '/api/products?page=1&limit=20'
+                );
+
+                const prodItems = Array.isArray(prodData?.items)
+                    ? prodData.items
+                    : Array.isArray(prodData)
+                        ? prodData
+                        : [];
+
+                let dest = prodItems.filter(
+                    (p) => p.estado === 'publicado' && p.es_destacado
+                );
+
+                if (dest.length === 0) {
+                    dest = prodItems
+                        .filter((p) => p.estado === 'publicado')
+                        .slice(0, 4);
+                } else {
+                    dest = dest.slice(0, 4);
+                }
+
+                setDestacados(dest);
+
+                const { data: servData } = await api.get('/api/services');
+                const servItems = Array.isArray(servData) ? servData : [];
+                setServicios(servItems.slice(0, 4));
+
+                const { data: courseData } = await api.get('/api/courses');
+                const courseItems = Array.isArray(courseData) ? courseData : [];
+                setCursos(courseItems.slice(0, 3));
             } catch (e) {
-                console.error(e);
+                console.error('Error cargando datos del Home:', e);
             }
         })();
     }, []);
@@ -31,7 +74,8 @@ export default function Home() {
                 <div className="hero__content container">
                     <h1 className="hero__title">El mejor cuidado para tu mejor amigo</h1>
                     <p className="hero__subtitle">
-                        Encuentra todo lo que necesitas para la felicidad y salud de tu mascota.
+                        Encuentra todo lo que necesitas para la felicidad y salud de tu
+                        mascota.
                     </p>
                     <div className="hero__actions">
                         <Link to="/productos" className="btn btn--primary btn--lg">
@@ -54,205 +98,151 @@ export default function Home() {
                         <p>No hay productos destacados disponibles en este momento.</p>
                     ) : (
                         <div className="featured-grid">
-                            {destacados.map(p => <ProductCard key={p.id} p={p} />)}
+                            {destacados.map((p) => (
+                                <ProductCard key={p.id} p={p} />
+                            ))}
                         </div>
                     )}
                 </div>
             </section>
 
-            <section className="featured-section" style={{ backgroundColor: 'var(--color-bg-alt)' }}>
+            <section
+                className="featured-section"
+                style={{ backgroundColor: 'var(--color-bg-alt)' }}
+            >
                 <div className="container">
                     <h2 className="section-title">Nuestros Servicios</h2>
-                    <div className="featured-grid">
-                        <article className="product-card">
-                            <div className="product-card__img-wrapper">
-                                <div
-                                    className="product-card__img"
-                                    aria-hidden
-                                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem' }}
-                                >
-                                    🛁
-                                </div>
-                            </div>
-                            <div className="product-card__body">
-                                <h3 className="product-card__title">Baño Completo</h3>
-                                <p>
-                                    Un baño refrescante con productos de alta calidad para tu mascota.
-                                </p>
-                                <div className="product-card__actions">
-                                    <Link to="/agendar" className="btn btn--accent btn--sm">
-                                        Agendar
-                                    </Link>
-                                    <Link to="/servicios" className="btn btn--outline-primary btn--sm">
-                                        Ver detalle
-                                    </Link>
-                                </div>
-                            </div>
-                        </article>
 
-                        <article className="product-card">
-                            <div className="product-card__img-wrapper">
-                                <div
-                                    className="product-card__img"
-                                    aria-hidden
-                                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem' }}
-                                >
-                                    ✂️
-                                </div>
-                            </div>
-                            <div className="product-card__body">
-                                <h3 className="product-card__title">Peluquería Canina</h3>
-                                <p>
-                                    Cortes de raza y estilismo profesional para que tu perro luzca genial.
-                                </p>
-                                <div className="product-card__actions">
-                                    <Link to="/agendar" className="btn btn--accent btn--sm">
-                                        Agendar
-                                    </Link>
-                                    <Link to="/servicios" className="btn btn--outline-primary btn--sm">
-                                        Ver detalle
-                                    </Link>
-                                </div>
-                            </div>
-                        </article>
+                    {servicios.length === 0 ? (
+                        <p>No hay servicios disponibles en este momento.</p>
+                    ) : (
+                        <div className="featured-grid">
+                            {servicios.map((s) => {
+                                const icon = serviceIcons[s.tipo] || '🐾';
 
-                        <article className="product-card">
-                            <div className="product-card__img-wrapper">
-                                <div
-                                    className="product-card__img"
-                                    aria-hidden
-                                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem' }}
-                                >
-                                    ⚕️
-                                </div>
-                            </div>
-                            <div className="product-card__body">
-                                <h3 className="product-card__title">Atención Veterinaria</h3>
-                                <p>
-                                    Consultas, vacunas y chequeos generales con nuestros expertos.
-                                </p>
-                                <div className="product-card__actions">
-                                    <Link to="/agendar" className="btn btn--accent btn--sm">
-                                        Agendar
-                                    </Link>
-                                    <Link to="/servicios" className="btn btn--outline-primary btn--sm">
-                                        Ver detalle
-                                    </Link>
-                                </div>
-                            </div>
-                        </article>
+                                return (
+                                    <article key={s.id} className="product-card">
+                                        <div className="product-card__img-wrapper">
+                                            {s.imagen_url ? (
+                                                <img
+                                                    src={s.imagen_url}
+                                                    alt={s.nombre}
+                                                    className="product-card__img"
+                                                />
+                                            ) : (
+                                                <div
+                                                    className="product-card__img"
+                                                    aria-hidden
+                                                    style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        fontSize: '3rem',
+                                                    }}
+                                                >
+                                                    {icon}
+                                                </div>
+                                            )}
+                                        </div>
 
-                        <article className="product-card">
-                            <div className="product-card__img-wrapper">
-                                <div
-                                    className="product-card__img"
-                                    aria-hidden
-                                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem' }}
-                                >
-                                    🎓
-                                </div>
-                            </div>
-                            <div className="product-card__body">
-                                <h3 className="product-card__title">Adiestramiento</h3>
-                                <p>
-                                    Clases de obediencia para fortalecer el vínculo con tu mascota.
-                                </p>
-                                <div className="product-card__actions">
-                                    <Link to="/agendar" className="btn btn--accent btn--sm">
-                                        Agendar
-                                    </Link>
-                                    <Link to="/servicios" className="btn btn--outline-primary btn--sm">
-                                        Ver detalle
-                                    </Link>
-                                </div>
-                            </div>
-                        </article>
-                    </div>
+                                        <div className="product-card__body">
+                                            <h3 className="product-card__title">{s.nombre}</h3>
+                                            {s.descripcion && <p>{s.descripcion}</p>}
+                                            <div className="product-card__actions">
+                                                <Link
+                                                    to="/agendar"
+                                                    className="btn btn--accent btn--sm"
+                                                >
+                                                    Agendar
+                                                </Link>
+                                                <Link
+                                                    to="/servicios"
+                                                    className="btn btn--outline-primary btn--sm"
+                                                >
+                                                    Ver detalle
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    </article>
+                                );
+                            })}
+                        </div>
+                    )}
                 </div>
             </section>
 
             <section className="featured-section">
                 <div className="container">
                     <h2 className="section-title">Algunos Cursos</h2>
-                    <div className="courses-preview-grid">
-                        <article className="product-card">
-                            <div className="product-card__img-wrapper">
-                                <div
-                                    className="product-card__img"
-                                    aria-hidden
-                                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem' }}
-                                >
-                                    🐾
-                                </div>
-                            </div>
-                            <div className="product-card__body">
-                                <h3 className="product-card__title">Adiestramiento Básico</h3>
-                                <p>
-                                    Aprende las técnicas para educar a tu cachorro y fortalecer su vínculo.
-                                </p>
-                                <div className="product-card__actions">
-                                    <Link to="/cursos" className="btn btn--accent btn--sm">
-                                        Inscribirse
-                                    </Link>
-                                    <Link to="/cursos" className="btn btn--outline-primary btn--sm">
-                                        Más Información
-                                    </Link>
-                                </div>
-                            </div>
-                        </article>
 
-                        <article className="product-card">
-                            <div className="product-card__img-wrapper">
-                                <div
-                                    className="product-card__img"
-                                    aria-hidden
-                                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem' }}
-                                >
-                                    ❤️
-                                </div>
-                            </div>
-                            <div className="product-card__body">
-                                <h3 className="product-card__title">Primeros Auxilios</h3>
-                                <p>
-                                    Conoce cómo reaccionar ante emergencias comunes en mascotas.
-                                </p>
-                                <div className="product-card__actions">
-                                    <Link to="/cursos" className="btn btn--accent btn--sm">
-                                        Inscribirse
-                                    </Link>
-                                    <Link to="/cursos" className="btn btn--outline-primary btn--sm">
-                                        Más Información
-                                    </Link>
-                                </div>
-                            </div>
-                        </article>
+                    {cursos.length === 0 ? (
+                        <p>No hay cursos publicados en este momento.</p>
+                    ) : (
+                        <div className="courses-preview-grid">
+                            {cursos.map((c) => {
+                                const icon = courseIcons[c.modalidad] || '🎓';
+                                const desc =
+                                    (c.descripcion || '').length > 140
+                                        ? `${c.descripcion.slice(0, 140)}…`
+                                        : c.descripcion;
+                                const precioLabel =
+                                    c.precio != null ? formatCurrency(Number(c.precio)) : 'Gratis';
 
-                        <article className="product-card">
-                            <div className="product-card__img-wrapper">
-                                <div
-                                    className="product-card__img"
-                                    aria-hidden
-                                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem' }}
-                                >
-                                    🦴
-                                </div>
-                            </div>
-                            <div className="product-card__body">
-                                <h3 className="product-card__title">Nutrición Canina</h3>
-                                <p>
-                                    Descubre los secretos de una dieta balanceada para un perro sano.
-                                </p>
-                                <div className="product-card__actions">
-                                    <Link to="/cursos" className="btn btn--accent btn--sm">
-                                        Inscribirse
-                                    </Link>
-                                    <Link to="/cursos" className="btn btn--outline-primary btn--sm">
-                                        Más Información
-                                    </Link>
-                                </div>
-                            </div>
-                        </article>
-                    </div>
+                                return (
+                                    <article key={c.id} className="product-card">
+                                        <div className="product-card__img-wrapper">
+                                            {c.portada_url ? (
+                                                <img
+                                                    src={c.portada_url}
+                                                    alt={c.titulo}
+                                                    className="product-card__img"
+                                                />
+                                            ) : (
+                                                <div
+                                                    className="product-card__img"
+                                                    aria-hidden
+                                                    style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        fontSize: '3rem',
+                                                    }}
+                                                >
+                                                    {icon}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="product-card__body">
+                                            <h3 className="product-card__title">{c.titulo}</h3>
+                                            {desc && (
+                                                <p className="product-card__description">{desc}</p>
+                                            )}
+
+                                            <p style={{ marginBottom: '0.5rem', fontWeight: 600 }}>
+                                                {precioLabel}
+                                            </p>
+
+                                            <div className="product-card__actions">
+                                                <Link
+                                                    to={`/cursos/${c.id}`}
+                                                    className="btn btn--accent btn--sm"
+                                                >
+                                                    Inscribirse
+                                                </Link>
+                                                <Link
+                                                    to={`/cursos/${c.id}`}
+                                                    className="btn btn--outline-primary btn--sm"
+                                                >
+                                                    Más Información
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    </article>
+                                );
+                            })}
+                        </div>
+                    )}
                 </div>
             </section>
         </>

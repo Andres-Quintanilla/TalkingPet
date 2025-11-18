@@ -1,4 +1,3 @@
-// src/pages/PetList.jsx
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
@@ -20,7 +19,6 @@ export default function PetList() {
     formState: { errors, isSubmitting },
   } = useForm();
 
-  // Cargar mascotas del usuario
   const fetchPets = async () => {
     try {
       setLoading(true);
@@ -38,7 +36,6 @@ export default function PetList() {
     fetchPets();
   }, []);
 
-  // Crear mascota
   const onPetSubmit = async (data) => {
     try {
       setError('');
@@ -156,13 +153,11 @@ export default function PetList() {
       </div>
 
 
-      {/* Modal para agregar mascota */}
       {showModal && (
         <div
           className="modal-overlay"
           onClick={() => setShowModal(false)}
         >
-          {/* IMPORTANTE: usamos otra clase y estilos inline para que SIEMPRE se vea */}
           <div
             className="modal-card"
             onClick={(e) => e.stopPropagation()}

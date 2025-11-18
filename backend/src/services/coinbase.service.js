@@ -1,4 +1,3 @@
-// backend/src/services/coinbase.service.js
 import pkg from 'coinbase-commerce-node';
 const { Client, resources } = pkg;
 

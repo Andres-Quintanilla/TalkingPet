@@ -1,11 +1,9 @@
-// src/pages/Courses.jsx
 import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import { useEffect, useState } from 'react';
 import api from '../api/axios';
 import { formatCurrency } from '../utils/format';
 
-// Iconos para cursos (basado en tu data estática)
 const courseIcons = {
   presencial: '🐾',
   virtual: '💻',
@@ -20,7 +18,7 @@ export default function Courses() {
       try {
         setLoading(true);
         const { data } = await api.get('/api/courses');
-        setCursos(data);
+        setCursos(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error('Error fetching courses:', error);
       } finally {
@@ -56,7 +54,7 @@ export default function Courses() {
                 <p>Cargando cursos...</p>
               </div>
             )}
-            
+
             {!loading && cursos.length === 0 && (
               <div className="empty-state">
                 <p>No hay cursos disponibles en este momento.</p>
@@ -65,37 +63,82 @@ export default function Courses() {
 
             <div className="courses-grid">
               {!loading &&
-                cursos.map((c) => (
-                  <article key={c.id} className="course-card">
-                    <div className="course-card__icon" aria-hidden="true">
-                      {courseIcons[c.modalidad] || '🎓'}
-                    </div>
-                    <h3 className="course-card__title">{c.titulo}</h3>
-                    <p className="course-card__description">{c.descripcion}</p>
-                    <ul className="course-card__details">
-                      <li>
-                        <strong>Modalidad:</strong>{' '}
-                        <span className={`badge ${
-                          c.modalidad === 'presencial' ? 'badge--accent' : 'badge--primary'
-                        }`}>
-                          {c.modalidad}
-                        </span>
-                      </li>
-                      <li>
-                        <strong>Costo:</strong> {formatCurrency(c.precio)}
-                      </li>
-                       {c.modalidad === 'presencial' && c.cupos_totales && (
-                         <li>
-                           <strong>Cupos:</strong> {c.cupos_totales}
-                         </li>
-                       )}
-                    </ul>
-                    {/* El Link ahora lleva al detalle del curso */}
-                    <Link to={`/cursos/${c.id}`} className="btn btn--primary">
-                      Ver Detalles
-                    </Link>
-                  </article>
-                ))}
+                cursos.map((c) => {
+                  const isVirtual = c.modalidad === 'virtual';
+                  const icon = courseIcons[c.modalidad] || '🎓';
+                  const precio =
+                    c.precio != null ? formatCurrency(Number(c.precio)) : 'Gratis';
+
+                  const fechaPresencial =
+                    !isVirtual && c.fecha_inicio_presencial
+                      ? new Date(c.fecha_inicio_presencial).toLocaleDateString('es-BO')
+                      : null;
+
+                  const desc =
+                    (c.descripcion || '').length > 140
+                      ? `${c.descripcion.slice(0, 140)}…`
+                      : c.descripcion;
+
+                  return (
+                    <article key={c.id} className="course-card">
+                      {c.portada_url ? (
+                        <div className="course-card__media">
+                          <img
+                            src={c.portada_url}
+                            alt={c.titulo}
+                            className="course-card__img"
+                          />
+                        </div>
+                      ) : (
+                        <div className="course-card__icon" aria-hidden="true">
+                          {icon}
+                        </div>
+                      )}
+
+                      <h3 className="course-card__title">{c.titulo}</h3>
+
+                      {desc && (
+                        <p className="course-card__description">{desc}</p>
+                      )}
+
+                      <ul className="course-card__details">
+                        <li>
+                          <strong>Modalidad:</strong>{' '}
+                          <span
+                            className={`badge ${
+                              isVirtual ? 'badge--primary' : 'badge--accent'
+                            }`}
+                          >
+                            {isVirtual ? 'Virtual' : 'Presencial'}
+                          </span>
+                        </li>
+
+                        <li>
+                          <strong>Costo:</strong> {precio}
+                        </li>
+
+                        {!isVirtual && c.cupos_totales != null && (
+                          <li>
+                            <strong>Cupos:</strong> {c.cupos_totales}
+                          </li>
+                        )}
+
+                        {!isVirtual && fechaPresencial && (
+                          <li>
+                            <strong>Fecha:</strong> {fechaPresencial}
+                          </li>
+                        )}
+                      </ul>
+
+                      <Link
+                        to={`/cursos/${c.id}`}
+                        className="btn btn--primary"
+                      >
+                        Ver detalles
+                      </Link>
+                    </article>
+                  );
+                })}
             </div>
           </div>
         </section>

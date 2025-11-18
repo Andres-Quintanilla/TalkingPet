@@ -1,4 +1,3 @@
-// frontend/src/components/PetProfile.jsx
 import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../api/axios';
@@ -22,7 +21,6 @@ export default function PetProfile() {
     } catch (error) {
       console.error('Error cargando expediente:', error);
       if (error.response?.status === 404) {
-        // Crear expediente inicial si no existe
         await crearExpedienteInicial();
       }
     } finally {
@@ -75,7 +73,6 @@ export default function PetProfile() {
 
   return (
     <div className="pet-profile-page">
-      {/* Header con info de la mascota */}
       <div className="pet-profile-header">
         <div className="container">
           <div className="pet-profile-header__content">
@@ -125,7 +122,6 @@ export default function PetProfile() {
         </div>
       </div>
 
-      {/* Tabs de navegación */}
       <div className="pet-profile-tabs">
         <div className="container">
           <div className="tabs">
@@ -175,7 +171,6 @@ export default function PetProfile() {
         </div>
       </div>
 
-      {/* Contenido de tabs */}
       <div className="pet-profile-content">
         <div className="container">
           {activeTab === 'vacunas' && (
@@ -222,7 +217,6 @@ export default function PetProfile() {
         </div>
       </div>
 
-      {/* Modal para agregar registros */}
       {showModal && (
         <ModalAgregar
           tipo={modalType}
@@ -237,8 +231,6 @@ export default function PetProfile() {
     </div>
   );
 }
-
-// ========== COMPONENTES DE TABS ==========
 
 function TabVacunas({ vacunas, onAdd, onRefresh }) {
   return (
@@ -304,8 +296,6 @@ function TabVacunas({ vacunas, onAdd, onRefresh }) {
     </div>
   );
 }
-
-// (El resto de tabs los dejo igual que tú, solo quitando el `index` no usado en TabPeso)
 
 function TabConsultas({ consultas, onAdd }) {
   return (
@@ -422,7 +412,6 @@ function TabPeso({ historial, onAdd }) {
         </div>
       ) : (
         <>
-          {/* Gráfica simple */}
           <div className="peso-chart">
             <div className="peso-chart__bars">
               {historial.slice(-10).map((registro) => {
@@ -449,7 +438,6 @@ function TabPeso({ historial, onAdd }) {
             </div>
           </div>
 
-          {/* Tabla */}
           <table className="medical-table">
             <thead>
               <tr>
@@ -477,7 +465,3 @@ function TabPeso({ historial, onAdd }) {
     </div>
   );
 }
-
-// TabAlergias, TabDocumentos, TabAlertas y ModalAgregar
-// los dejo exactamente como tú los tenías (no daban warnings importantes),
-// puedes reutilizarlos tal cual los pegaste.

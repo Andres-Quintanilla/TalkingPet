@@ -1,4 +1,3 @@
-// backend/src/services/medical-record.service.js
 import { pool } from "../config/db.js";
 
 /**

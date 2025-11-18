@@ -1,15 +1,13 @@
-// src/pages/admin/AdminMedical.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 
-// (El componente EstadoSalud que te di antes)
 function EstadoSalud({ estado }) {
   const config = {
-     excelente: { icon: '✅', text: 'Excelente', class: 'estado-salud--excelente' },
-     bueno: { icon: '👍', text: 'Bueno', class: 'estado-salud--bueno' },
-     atencion: { icon: '⚠️', text: 'Requiere Atención', class: 'estado-salud--atencion' },
-     critico: { icon: '🚨', text: 'Crítico', class: 'estado-salud--critico' }
+    excelente: { icon: '✅', text: 'Excelente', class: 'estado-salud--excelente' },
+    bueno: { icon: '👍', text: 'Bueno', class: 'estado-salud--bueno' },
+    atencion: { icon: '⚠️', text: 'Requiere Atención', class: 'estado-salud--atencion' },
+    critico: { icon: '🚨', text: 'Crítico', class: 'estado-salud--critico' }
   };
   const { icon, text, class: className } = config[estado] || config.bueno;
   return (<span className={`estado-salud ${className}`}>{icon} {text}</span>);
@@ -26,9 +24,7 @@ export default function AdminMedical() {
   const cargarDatos = async () => {
     try {
       setLoading(true);
-      // TODO: Crear endpoint en backend para listar *todas* las mascotas
-      // /api/medical/all-pets (con stats)
-      // Por ahora simulamos
+
       const mockData = [
         { id: 1, nombre: 'Max', especie: 'perro', raza: 'Golden', edad: 3, dueno: 'Cliente Ejemplo', alertas_pendientes: 1, ultima_consulta: '2025-10-01', proxima_vacuna: '2025-11-20', estado_salud: 'bueno' },
         { id: 2, nombre: 'Mishi', especie: 'gato', raza: 'Siames', edad: 1, dueno: 'Cliente Ejemplo', alertas_pendientes: 0, ultima_consulta: '2025-09-15', proxima_vacuna: '2026-01-10', estado_salud: 'excelente' },
@@ -47,10 +43,9 @@ export default function AdminMedical() {
   }, []);
 
   const mascotasFiltradas = mascotas.filter(mascota => {
-    const cumpleBusqueda = !busqueda || 
+    const cumpleBusqueda = !busqueda ||
       mascota.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
       mascota.dueno.toLowerCase().includes(busqueda.toLowerCase());
-    // (Lógica de filtro aquí)
     return cumpleBusqueda;
   });
 
@@ -68,45 +63,44 @@ export default function AdminMedical() {
       <div className="admin-medical__header">
         <h1 className="admin-medical__title">🏥 Gestión Médica</h1>
         {stats && (
-            <div className="admin-stats-grid">
-                 <div className="admin-stat-card admin-stat-card--primary">
-                    <div className="admin-stat-card__icon">🐾</div>
-                    <div className="admin-stat-card__content">
-                        <div className="admin-stat-card__value">{stats.totalMascotas}</div>
-                        <div className="admin-stat-card__label">Mascotas</div>
-                    </div>
-                 </div>
-                 <div className="admin-stat-card admin-stat-card--warning">
-                    <div className="admin-stat-card__icon">⚠️</div>
-                    <div className="admin-stat-card__content">
-                        <div className="admin-stat-card__value">{stats.alertasPendientes}</div>
-                        <div className="admin-stat-card__label">Alertas</div>
-                    </div>
-                 </div>
-                 <div className="admin-stat-card admin-stat-card--success">
-                    <div className="admin-stat-card__icon">💉</div>
-                    <div className="admin-stat-card__content">
-                        <div className="admin-stat-card__value">{stats.vacunasEsteMes}</div>
-                        <div className="admin-stat-card__label">Vacunas (Mes)</div>
-                    </div>
-                 </div>
-                 <div className="admin-stat-card admin-stat-card--info">
-                    <div className="admin-stat-card__icon">📋</div>
-                    <div className="admin-stat-card__content">
-                        <div className="admin-stat-card__value">{stats.consultasEsteMes}</div>
-                        <div className="admin-stat-card__label">Consultas (Mes)</div>
-                    </div>
-                 </div>
+          <div className="admin-stats-grid">
+            <div className="admin-stat-card admin-stat-card--primary">
+              <div className="admin-stat-card__icon">🐾</div>
+              <div className="admin-stat-card__content">
+                <div className="admin-stat-card__value">{stats.totalMascotas}</div>
+                <div className="admin-stat-card__label">Mascotas</div>
+              </div>
             </div>
+            <div className="admin-stat-card admin-stat-card--warning">
+              <div className="admin-stat-card__icon">⚠️</div>
+              <div className="admin-stat-card__content">
+                <div className="admin-stat-card__value">{stats.alertasPendientes}</div>
+                <div className="admin-stat-card__label">Alertas</div>
+              </div>
+            </div>
+            <div className="admin-stat-card admin-stat-card--success">
+              <div className="admin-stat-card__icon">💉</div>
+              <div className="admin-stat-card__content">
+                <div className="admin-stat-card__value">{stats.vacunasEsteMes}</div>
+                <div className="admin-stat-card__label">Vacunas (Mes)</div>
+              </div>
+            </div>
+            <div className="admin-stat-card admin-stat-card--info">
+              <div className="admin-stat-card__icon">📋</div>
+              <div className="admin-stat-card__content">
+                <div className="admin-stat-card__value">{stats.consultasEsteMes}</div>
+                <div className="admin-stat-card__label">Consultas (Mes)</div>
+              </div>
+            </div>
+          </div>
         )}
       </div>
 
       <div className="admin-medical__filters">
         <div className="filter-tabs">
-            {/* (Filtros) */}
         </div>
         <div className="search-box">
-          <input 
+          <input
             type="text"
             placeholder="Buscar mascota o dueño..."
             className="search-box__input"
@@ -147,17 +141,17 @@ export default function AdminMedical() {
                   </div>
                 </td>
                 <td>
-                    {mascota.alertas_pendientes > 0 ? (
-                        <span className="alert-badge alert-badge--warning">{mascota.alertas_pendientes}</span>
-                    ) : (
-                        <span className="alert-badge alert-badge--success">0</span>
-                    )}
+                  {mascota.alertas_pendientes > 0 ? (
+                    <span className="alert-badge alert-badge--warning">{mascota.alertas_pendientes}</span>
+                  ) : (
+                    <span className="alert-badge alert-badge--success">0</span>
+                  )}
                 </td>
                 <td>{format(new Date(mascota.proxima_vacuna), 'dd/MM/yyyy')}</td>
                 <td><EstadoSalud estado={mascota.estado_salud} /></td>
                 <td>
                   <div className="actions-cell">
-                    <button 
+                    <button
                       className="btn btn--sm btn--primary"
                       onClick={() => navigate(`/mascota/${mascota.id}/expediente`)}
                     >

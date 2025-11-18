@@ -1,4 +1,3 @@
-// src/pages/PaymentCancel.jsx
 import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import { XCircle } from 'lucide-react';

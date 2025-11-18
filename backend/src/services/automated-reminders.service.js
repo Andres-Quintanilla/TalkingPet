@@ -1,4 +1,3 @@
-// backend/src/services/automated-reminders.service.js
 import { pool } from "../config/db.js";
 import { sendEmail, sendWhatsApp } from "./notification.service.js";
 

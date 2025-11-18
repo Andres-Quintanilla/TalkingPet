@@ -1,4 +1,3 @@
-// frontend/src/pages/admin/MedicalManagement.jsx
 import { useState, useEffect } from 'react';
 import api from '../../api/axios';
 import '../../styles/admin-medical.css';
@@ -6,7 +5,7 @@ import '../../styles/admin-medical.css';
 export default function MedicalManagement() {
   const [mascotas, setMascotas] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filtro, setFiltro] = useState('todas'); // todas, vacunas-pendientes, alertas-urgentes
+  const [filtro, setFiltro] = useState('todas');
   const [busqueda, setBusqueda] = useState('');
   const [estadisticasGlobales, setEstadisticasGlobales] = useState({
     totalMascotas: 0,
@@ -22,8 +21,6 @@ export default function MedicalManagement() {
   const cargarDatos = async () => {
     try {
       setLoading(true);
-      // TODO: Crear endpoint en backend para listar todas las mascotas con sus alertas
-      // Por ahora simulamos con datos de ejemplo
       const mockData = [
         {
           id: 1,
@@ -78,12 +75,10 @@ export default function MedicalManagement() {
   };
 
   const mascotasFiltradas = mascotas.filter(mascota => {
-    // Filtro por búsqueda
-    const cumpleBusqueda = !busqueda || 
+    const cumpleBusqueda = !busqueda ||
       mascota.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
       mascota.dueno.toLowerCase().includes(busqueda.toLowerCase());
 
-    // Filtro por categoría
     let cumpleFiltro = true;
     if (filtro === 'vacunas-pendientes') {
       cumpleFiltro = new Date(mascota.proxima_vacuna) <= new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
@@ -116,10 +111,9 @@ export default function MedicalManagement() {
 
   return (
     <div className="admin-medical">
-      {/* Header con estadísticas globales */}
       <div className="admin-medical__header">
         <h1 className="admin-medical__title">🏥 Gestión Médica</h1>
-        
+
         <div className="admin-stats-grid">
           <div className="admin-stat-card admin-stat-card--primary">
             <div className="admin-stat-card__icon">🐾</div>
@@ -128,7 +122,7 @@ export default function MedicalManagement() {
               <div className="admin-stat-card__label">Mascotas Registradas</div>
             </div>
           </div>
-          
+
           <div className="admin-stat-card admin-stat-card--warning">
             <div className="admin-stat-card__icon">⚠️</div>
             <div className="admin-stat-card__content">
@@ -136,7 +130,7 @@ export default function MedicalManagement() {
               <div className="admin-stat-card__label">Alertas Pendientes</div>
             </div>
           </div>
-          
+
           <div className="admin-stat-card admin-stat-card--success">
             <div className="admin-stat-card__icon">💉</div>
             <div className="admin-stat-card__content">
@@ -144,7 +138,7 @@ export default function MedicalManagement() {
               <div className="admin-stat-card__label">Vacunas Este Mes</div>
             </div>
           </div>
-          
+
           <div className="admin-stat-card admin-stat-card--info">
             <div className="admin-stat-card__icon">📋</div>
             <div className="admin-stat-card__content">
@@ -155,9 +149,8 @@ export default function MedicalManagement() {
         </div>
       </div>
 
-      {/* Acciones rápidas */}
       <div className="admin-medical__actions">
-        <button 
+        <button
           className="btn btn--primary"
           onClick={enviarRecordatoriosManual}
         >
@@ -168,22 +161,21 @@ export default function MedicalManagement() {
         </button>
       </div>
 
-      {/* Filtros y búsqueda */}
       <div className="admin-medical__filters">
         <div className="filter-tabs">
-          <button 
+          <button
             className={`filter-tab ${filtro === 'todas' ? 'filter-tab--active' : ''}`}
             onClick={() => setFiltro('todas')}
           >
             Todas
           </button>
-          <button 
+          <button
             className={`filter-tab ${filtro === 'vacunas-pendientes' ? 'filter-tab--active' : ''}`}
             onClick={() => setFiltro('vacunas-pendientes')}
           >
             💉 Vacunas Próximas
           </button>
-          <button 
+          <button
             className={`filter-tab ${filtro === 'alertas-urgentes' ? 'filter-tab--active' : ''}`}
             onClick={() => setFiltro('alertas-urgentes')}
           >
@@ -192,7 +184,7 @@ export default function MedicalManagement() {
         </div>
 
         <div className="search-box">
-          <input 
+          <input
             type="text"
             placeholder="Buscar mascota o dueño..."
             className="search-box__input"
@@ -203,7 +195,6 @@ export default function MedicalManagement() {
         </div>
       </div>
 
-      {/* Tabla de mascotas */}
       <div className="admin-medical__content">
         {mascotasFiltradas.length === 0 ? (
           <div className="admin-empty-state">
@@ -267,7 +258,7 @@ export default function MedicalManagement() {
                     </td>
                     <td>
                       <div className="actions-cell">
-                        <button 
+                        <button
                           className="btn btn--sm btn--primary"
                           onClick={() => window.location.href = `/mascota/${mascota.id}/expediente`}
                         >
@@ -283,7 +274,6 @@ export default function MedicalManagement() {
         )}
       </div>
 
-      {/* Resumen inferior */}
       <div className="admin-medical__summary">
         <p>
           Mostrando {mascotasFiltradas.length} de {mascotas.length} mascotas
@@ -293,7 +283,6 @@ export default function MedicalManagement() {
   );
 }
 
-// Componente para mostrar estado de salud
 function EstadoSalud({ estado }) {
   const config = {
     excelente: {

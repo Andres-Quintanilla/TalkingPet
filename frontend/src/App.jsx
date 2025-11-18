@@ -1,4 +1,3 @@
-// src/App.jsx
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -71,7 +70,6 @@ export default function App() {
     location.pathname.startsWith('/mis-cursos/ver');
 
   return (
-    // ⬇⬇ CONTENEDOR GENERAL PARA EL LAYOUT
     <div className="app-shell">
       {!hideChrome && <Header />}
 
@@ -207,13 +205,7 @@ export default function App() {
           <Route
             path="/empleado"
             element={
-              <RequireRole
-                roles={[
-                  'empleado_veterinario',
-                  'empleado_peluquero',
-                  'empleado_adiestrador',
-                ]}
-              >
+              <RequireRole roles={['empleado', 'admin']}>
                 <EmployeeLayout />
               </RequireRole>
             }

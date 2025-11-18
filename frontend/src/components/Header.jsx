@@ -1,4 +1,3 @@
-// src/components/Header.jsx
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
@@ -20,7 +19,7 @@ import {
 } from 'lucide-react';
 import ChatbotWidget from './ChatbotWidget';
 import api from '../api/axios';
-import { formatCurrency } from '../utils/format'; // Importamos el formateador
+import { formatCurrency } from '../utils/format'; 
 
 export default function Header() {
   const { user, logout } = useAuth();
@@ -29,7 +28,6 @@ export default function Header() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  // --- Lógica del Tema ---
   const getInitialTheme = () => {
     const saved = localStorage.getItem('tp-theme');
     if (saved === 'light' || saved === 'dark') return saved;
@@ -61,7 +59,6 @@ export default function Header() {
       }
     }
   };
-  // --- Fin Lógica del Tema ---
 
   const handleLogout = () => {
     setUserMenuOpen(false);
@@ -81,7 +78,6 @@ export default function Header() {
   return (
     <header className="header" role="banner">
       <nav className="nav container" aria-label="Navegación principal">
-        {/* Izquierda: marca */}
         <div className="nav__brand">
           <Link
             to="/"
@@ -93,7 +89,6 @@ export default function Header() {
           </Link>
         </div>
 
-        {/* Centro: navegación principal (oculto en móvil) */}
         <ul className="nav__menu nav__menu--primary">
             <li className="nav__item">
             <NavLink to="/" className="nav__link">
@@ -117,7 +112,6 @@ export default function Header() {
           </li>
         </ul>
 
-        {/* Derecha: utilidades */}
         <ul className="nav__menu nav__menu--utilities">
           {/* Carrito */}
           <li className="nav__item">
@@ -133,7 +127,6 @@ export default function Header() {
             </NavLink>
           </li>
 
-          {/* Toggle tema */}
           <li className="nav__item">
             <button
               type="button"
@@ -152,7 +145,6 @@ export default function Header() {
             </button>
           </li>
 
-          {/* Autenticación (Desktop) */}
           {!user ? (
             <li className="nav__item nav__auth--desktop">
               <NavLink to="/login" className="btn btn--outline-primary btn--sm">
@@ -182,11 +174,9 @@ export default function Header() {
                 >
                   <div className="dropdown__item" aria-disabled="true">
                     <Wallet className="icon" aria-hidden="true" />
-                    {/* --- CORRECCIÓN AQUÍ --- */}
                     Saldo: {formatCurrency(Number(user.saldo ?? 0))}
                   </div>
 
-                  {/* --- Panel de Control (Admin/Empleado) --- */}
                   {(isAdmin || isEmployee) && (
                     <NavLink
                       to={isAdmin ? '/admin' : '/empleado'}
@@ -198,7 +188,6 @@ export default function Header() {
                     </NavLink>
                   )}
 
-                  {/* --- Panel de Cliente --- */}
                   <NavLink
                     to="/mis-mascotas"
                     className="dropdown__item"
@@ -241,7 +230,6 @@ export default function Header() {
             </li>
           )}
           
-          {/* Botón de Menú Móvil */}
            <li className="nav__item nav__item--mobile">
              <button 
                 className="nav__link nav__link--icon" 
@@ -256,7 +244,6 @@ export default function Header() {
         </ul>
       </nav>
       
-      {/* --- Menú Móvil Desplegable --- */}
       {menuOpen && (
           <div className="mobile-menu">
             <nav>
@@ -325,7 +312,6 @@ export default function Header() {
           </div>
       )}
 
-      {/* Chatbot flotante */}
       <ChatbotWidget />
     </header>
   );

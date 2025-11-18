@@ -1,4 +1,3 @@
-// src/services/scheduler.service.js
 import cron from 'node-cron';
 import {
   ejecutarRecordatoriosAutomaticos,

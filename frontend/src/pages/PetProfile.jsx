@@ -1,4 +1,3 @@
-// src/pages/PetProfile.jsx
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import api from "../api/axios";
@@ -48,7 +47,6 @@ export default function PetProfile() {
       </p>
 
       <div className="row">
-        {/* Datos básicos */}
         <div className="col-md-4 mb-3">
           <div className="card h-100">
             <div className="card-body">
@@ -68,7 +66,6 @@ export default function PetProfile() {
           </div>
         </div>
 
-        {/* Vacunas / historial médico */}
         <div className="col-md-8 mb-3">
           <div className="card h-100">
             <div className="card-body">

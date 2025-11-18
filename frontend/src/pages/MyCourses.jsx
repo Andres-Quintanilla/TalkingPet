@@ -1,4 +1,3 @@
-// src/pages/MyCourses.jsx
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
@@ -14,7 +13,7 @@ export default function MyCourses() {
       try {
         setLoading(true);
         const { data } = await api.get('/api/courses/mine');
-        setItems(data);
+        setItems(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error('Error fetching my courses:', error);
       } finally {
@@ -62,39 +61,57 @@ export default function MyCourses() {
 
             <div className="courses-grid">
               {!loading &&
-                items.map((c) => (
-                  <article key={c.id} className="course-card">
-                    <div className="course-card__icon" aria-hidden>
-                      {c.modalidad === 'virtual' ? '💻' : '🐾'}
-                    </div>
-                    <h3 className="course-card__title">{c.titulo}</h3>
-                    
-                    <ul className="course-card__details">
-                       <li>
-                        <strong>Modalidad:</strong>{' '}
-                        <span className={`badge ${
-                          c.modalidad === 'presencial' ? 'badge--accent' : 'badge--primary'
-                        }`}>
-                          {c.modalidad}
-                        </span>
-                      </li>
-                       <li>
-                        <strong>Progreso:</strong> {c.progreso}%
-                      </li>
-                       <li>
-                        <strong>Pagado:</strong> {formatCurrency(c.precio_snapshot)}
-                      </li>
-                    </ul>
+                items.map((c) => {
+                  const isVirtual = c.modalidad === 'virtual';
+                  const pagado = c.precio_snapshot ?? c.precio;
 
-                    <Link
-                      to={c.modalidad === 'virtual' ? `/mis-cursos/${c.curso_id}/ver` : '#'}
-                      className={`btn ${c.modalidad === 'virtual' ? 'btn--primary' : 'btn--secondary btn--disabled'}`}
-                      title={c.modalidad === 'presencial' ? 'Taller presencial, no requiere visor' : 'Empezar a ver'}
-                    >
-                      {c.modalidad === 'virtual' ? 'Empezar a ver' : 'Inscripción Confirmada'}
-                    </Link>
-                  </article>
-                ))}
+                  return (
+                    <article key={c.id} className="course-card">
+                      <div className="course-card__icon" aria-hidden>
+                        {isVirtual ? '💻' : '🐾'}
+                      </div>
+                      <h3 className="course-card__title">{c.titulo}</h3>
+
+                      <ul className="course-card__details">
+                        <li>
+                          <strong>Modalidad:</strong>{' '}
+                          <span
+                            className={`badge ${
+                              isVirtual ? 'badge--primary' : 'badge--accent'
+                            }`}
+                          >
+                            {isVirtual ? 'Virtual' : 'Presencial'}
+                          </span>
+                        </li>
+                        <li>
+                          <strong>Progreso:</strong> {c.progreso}%
+                        </li>
+                        <li>
+                          <strong>Pagado:</strong>{' '}
+                          {pagado != null
+                            ? formatCurrency(pagado)
+                            : '0,00'}
+                        </li>
+                      </ul>
+
+                      <Link
+                        to={isVirtual ? `/mis-cursos/${c.curso_id}/ver` : '#'}
+                        className={`btn ${
+                          isVirtual
+                            ? 'btn--primary'
+                            : 'btn--secondary btn--disabled'
+                        }`}
+                        title={
+                          isVirtual
+                            ? 'Empezar a ver'
+                            : 'Taller presencial, no requiere visor'
+                        }
+                      >
+                        {isVirtual ? 'Empezar a ver' : 'Inscripción Confirmada'}
+                      </Link>
+                    </article>
+                  );
+                })}
             </div>
           </div>
         </section>

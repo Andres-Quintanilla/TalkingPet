@@ -1,4 +1,3 @@
-// src/routes/booking.routes.js
 import { Router } from 'express';
 import * as ctrl from '../controllers/booking.controller.js';
 import { requireAuth } from '../middleware/auth.js';
@@ -12,7 +11,6 @@ const EMPLEADO_ROLES = [
   'empleado_adiestrador',
 ];
 
-// Summary de citas para dashboard admin (opcional)
 r.get(
   '/admin/summary',
   requireAuth,
@@ -20,15 +18,11 @@ r.get(
   ctrl.getAdminSummary
 );
 
-// RUTA PÚBLICA (para consultar horarios disponibles)
 r.get('/availability', ctrl.getAvailability);
 
-// --- Rutas de CLIENTE ---
 r.post('/', requireAuth, ctrl.create);
 r.get('/mine', requireAuth, ctrl.mine);
 
-// --- Rutas de EMPLEADO/ADMIN ---
-// GET /api/bookings/all  -> usada por el dashboard
 r.get('/all', requireAuth, requireRole(...EMPLEADO_ROLES), ctrl.listAll);
 
 r.patch(

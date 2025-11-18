@@ -1,12 +1,8 @@
-// src/components/RouteGuards.jsx
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-/**
- * Redirige al login si el usuario NO está autenticado.
- */
 export function RequireAuth({ children }) {
-  const { user, loading } = useAuth(); // Usamos loading
+  const { user, loading } = useAuth(); 
   const loc = useLocation();
 
   if (loading) {
@@ -40,16 +36,13 @@ export function RequireRole({ roles, children }) {
     );
   }
 
-  // Define a dónde enviar si falla la autenticación
   const loginPath = roles.includes('admin') ? '/admin/login' : '/login';
 
   if (!user) {
     return <Navigate to={loginPath} replace state={{ returnTo: loc.pathname + loc.search }} />;
   }
 
-  // Comprueba si el rol del usuario está en el array de roles permitidos
   if (!roles.includes(user.rol)) {
-    // Si no tiene el rol, lo mandamos al inicio
     return <Navigate to="/" replace />;
   }
 

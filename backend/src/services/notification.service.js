@@ -1,4 +1,3 @@
-// backend/src/services/notification.service.js
 import nodemailer from "nodemailer";
 import twilio from "twilio";
 

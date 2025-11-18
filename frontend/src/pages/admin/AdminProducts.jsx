@@ -1,7 +1,8 @@
-// src/pages/admin/AdminProducts.jsx
 import { useEffect, useMemo, useState } from 'react';
 import api from '../../api/axios';
 import { formatCurrency } from '../../utils/format';
+import ImageUploader from '../../components/ImageUploader';
+import ConfirmModal from '../../components/ConfirmModal';
 
 const EMPTY_FORM = {
   nombre: '',
@@ -9,7 +10,7 @@ const EMPTY_FORM = {
   precio: '',
   stock: '',
   categoria: '',
-  estado: 'borrador',      // 'borrador' | 'publicado'
+  estado: 'borrador',
   es_destacado: false,
   imagen_url: '',
 };
@@ -25,14 +26,28 @@ export default function AdminProducts() {
   const [showForm, setShowForm] = useState(false);
   const [search, setSearch] = useState('');
 
-  // ---------- Cargar lista ----------
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
+
   const loadProducts = async () => {
     setLoading(true);
     setError('');
     try {
-      // Usamos el mismo endpoint que el catálogo
-      const res = await api.get('/api/products');
-      const items = res.data?.items || res.data || [];
+      const params = {
+        page: 1,
+        limit: 100,
+        _ts: Date.now(),
+      };
+      if (search.trim()) {
+        params.search = search.trim();
+      }
+
+      const res = await api.get('/api/products', { params });
+      const items = Array.isArray(res.data?.items)
+        ? res.data.items
+        : Array.isArray(res.data)
+          ? res.data
+          : [];
       setProducts(items);
     } catch (e) {
       console.error('Error cargando productos admin', e);
@@ -44,18 +59,15 @@ export default function AdminProducts() {
 
   useEffect(() => {
     loadProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ---------- Filtro simple por nombre ----------
   const filteredProducts = useMemo(() => {
     const term = search.trim().toLowerCase();
     if (!term) return products;
-    return products.filter(p =>
-      (p.nombre || '').toLowerCase().includes(term)
-    );
+    return products.filter((p) => (p.nombre || '').toLowerCase().includes(term));
   }, [products, search]);
 
-  // ---------- Handlers de formulario ----------
   const handleNew = () => {
     setForm(EMPTY_FORM);
     setEditingId(null);
@@ -126,52 +138,76 @@ export default function AdminProducts() {
       categoria: form.categoria.trim() || null,
       estado: form.estado,
       es_destacado: !!form.es_destacado,
-      imagen_url: form.imagen_url.trim() || null,
+      imagen_url: form.imagen_url?.trim() || null,
     };
 
     try {
       if (editingId) {
-        await api.put(`/api/products/${editingId}`, payload);
+        const { data: updated } = await api.put(
+          `/api/products/${editingId}`,
+          payload
+        );
+        setProducts((prev) =>
+          prev.map((p) => (p.id === updated.id ? updated : p))
+        );
       } else {
-        await api.post('/api/products', payload);
+        const { data: created } = await api.post('/api/products', payload);
+        setProducts((prev) => [created, ...prev]);
       }
 
-      await loadProducts();
       handleCancel();
     } catch (e) {
       console.error('Error guardando producto', e);
-      setFormError('No se pudo guardar el producto. Revisa los datos.');
+      const msgServer =
+        e.response?.data?.error ||
+        'No se pudo guardar el producto. Revisa los datos.';
+      setFormError(msgServer);
+
+      if (e.response?.status === 401 || e.response?.status === 403) {
+        alert(
+          `No tienes permiso para esta acción (status ${e.response.status}). ` +
+          'Vuelve a iniciar sesión como admin.'
+        );
+      }
     } finally {
       setSaving(false);
     }
   };
 
-  const handleDelete = async (product) => {
-    const ok = window.confirm(
-      `¿Seguro que deseas eliminar el producto "${product.nombre}"?`
-    );
-    if (!ok) return;
+  const handleDelete = (product) => {
+    setProductToDelete(product);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!productToDelete) return;
 
     try {
-      await api.delete(`/api/products/${product.id}`);
-      await loadProducts();
+      await api.delete(`/api/products/${productToDelete.id}`);
+
+      setProducts((prev) => prev.filter((p) => p.id !== productToDelete.id));
     } catch (e) {
       console.error('Error eliminando producto', e);
-      alert('No se pudo eliminar el producto.');
+      alert(
+        e.response?.data?.error ||
+        'No se pudo eliminar el producto.'
+      );
+    } finally {
+      setShowDeleteModal(false);
+      setProductToDelete(null);
     }
   };
 
-  // ---------- Render ----------
   return (
-    <div className="admin-main">
-      {/* Header */}
-      <header className="admin-main__header">
+    <>
+      <header className="admin-main__header admin-header">
         <div>
           <h1 className="admin-main__title">Productos</h1>
           <p className="admin-main__subtitle">
-            Gestión de productos de la tienda TalkingPet.
+            Gestión de productos del catálogo de TalkingPet.
           </p>
         </div>
+
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
           <input
             type="text"
@@ -179,10 +215,23 @@ export default function AdminProducts() {
             className="form-input"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            style={{ minWidth: '240px' }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                loadProducts();
+              }
+            }}
           />
           <button
             type="button"
-            className="btn btn-primary"
+            className="btn btn--secondary"
+            onClick={loadProducts}
+          >
+            Buscar
+          </button>
+          <button
+            type="button"
+            className="btn btn--primary"
             onClick={handleNew}
           >
             + Nuevo producto
@@ -190,132 +239,122 @@ export default function AdminProducts() {
         </div>
       </header>
 
-      {/* Mensajes de carga / error */}
       {loading && (
-        <div className="admin-dashboard__loading">
-          Cargando productos...
-        </div>
+        <div className="admin-dashboard__loading">Cargando productos...</div>
       )}
 
       {error && !loading && (
         <div className="admin-dashboard__error">{error}</div>
       )}
 
-      {/* Formulario de alta/edición */}
       {showForm && (
         <section
           className="admin-form"
-          style={{ marginBottom: '2rem' }}
+          style={{ marginBottom: 'var(--space-xl)' }}
         >
-          <fieldset className="form-fieldset">
-            <legend className="form-fieldset__legend">
-              {editingId ? 'Editar producto' : 'Nuevo producto'}
-            </legend>
+          <form onSubmit={handleSubmit}>
+            <fieldset className="form-fieldset">
+              <legend className="form-fieldset__legend">
+                {editingId ? 'Editar producto' : 'Nuevo producto'}
+              </legend>
 
-            {formError && (
-              <p
-                style={{
-                  color: '#b00020',
-                  marginBottom: '0.75rem',
-                  fontSize: '0.9rem',
-                }}
-              >
-                {formError}
-              </p>
-            )}
+              {formError && <div className="form-error">{formError}</div>}
 
-            <div className="form-grid">
-              <div className="form-field">
-                <label className="form-field__label" htmlFor="nombre">
-                  Nombre *
-                </label>
-                <input
-                  id="nombre"
-                  name="nombre"
-                  type="text"
-                  className="form-field__input"
-                  value={form.nombre}
-                  onChange={handleChange}
-                />
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label" htmlFor="nombre">
+                    Nombre *
+                  </label>
+                  <input
+                    id="nombre"
+                    name="nombre"
+                    type="text"
+                    className="form-input"
+                    value={form.nombre}
+                    onChange={handleChange}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label" htmlFor="precio">
+                    Precio (Bs.) *
+                  </label>
+                  <input
+                    id="precio"
+                    name="precio"
+                    type="number"
+                    step="0.01"
+                    className="form-input"
+                    value={form.precio}
+                    onChange={handleChange}
+                  />
+                </div>
               </div>
 
-              <div className="form-field">
-                <label className="form-field__label" htmlFor="precio">
-                  Precio (Bs.) *
-                </label>
-                <input
-                  id="precio"
-                  name="precio"
-                  type="number"
-                  step="0.01"
-                  className="form-field__input"
-                  value={form.precio}
-                  onChange={handleChange}
-                />
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label" htmlFor="stock">
+                    Stock *
+                  </label>
+                  <input
+                    id="stock"
+                    name="stock"
+                    type="number"
+                    className="form-input"
+                    value={form.stock}
+                    onChange={handleChange}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label" htmlFor="categoria">
+                    Categoría
+                  </label>
+                  <input
+                    id="categoria"
+                    name="categoria"
+                    type="text"
+                    className="form-input"
+                    placeholder="Ej: Innovación, Alimentos..."
+                    value={form.categoria}
+                    onChange={handleChange}
+                  />
+                </div>
               </div>
 
-              <div className="form-field">
-                <label className="form-field__label" htmlFor="stock">
-                  Stock *
-                </label>
-                <input
-                  id="stock"
-                  name="stock"
-                  type="number"
-                  className="form-field__input"
-                  value={form.stock}
-                  onChange={handleChange}
-                />
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label" htmlFor="estado">
+                    Estado
+                  </label>
+                  <select
+                    id="estado"
+                    name="estado"
+                    className="form-input form-input--select"
+                    value={form.estado}
+                    onChange={handleChange}
+                  >
+                    <option value="borrador">Borrador</option>
+                    <option value="publicado">Publicado</option>
+                  </select>
+                  <p className="form-note">
+                    &quot;Publicado&quot; se mostrará en la tienda, &quot;borrador&quot; solo en el
+                    panel admin.
+                  </p>
+                </div>
+
+                <div className="form-group">
+                  <ImageUploader
+                    value={form.imagen_url}
+                    onChange={(url) =>
+                      setForm((prev) => ({ ...prev, imagen_url: url }))
+                    }
+                  />
+                </div>
               </div>
 
-              <div className="form-field">
-                <label className="form-field__label" htmlFor="categoria">
-                  Categoría
-                </label>
-                <input
-                  id="categoria"
-                  name="categoria"
-                  type="text"
-                  className="form-field__input"
-                  placeholder="Ej: juguetes, alimentación..."
-                  value={form.categoria}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div className="form-field">
-                <label className="form-field__label" htmlFor="estado">
-                  Estado
-                </label>
-                <select
-                  id="estado"
-                  name="estado"
-                  className="form-field__input"
-                  value={form.estado}
-                  onChange={handleChange}
-                >
-                  <option value="borrador">Borrador</option>
-                  <option value="publicado">Publicado</option>
-                </select>
-              </div>
-
-              <div className="form-field">
-                <label className="form-field__label" htmlFor="imagen_url">
-                  URL de imagen
-                </label>
-                <input
-                  id="imagen_url"
-                  name="imagen_url"
-                  type="text"
-                  className="form-field__input"
-                  value={form.imagen_url}
-                  onChange={handleChange}
-                  placeholder="https://..."
-                />
-              </div>
-
-              <div className="form-field" style={{ marginTop: '1.5rem' }}>
-                <label className="form-field__label">
+              <div className="form-group">
+                <label className="form-label">
                   <input
                     type="checkbox"
                     name="es_destacado"
@@ -325,53 +364,52 @@ export default function AdminProducts() {
                   />
                   Producto destacado
                 </label>
-                <p className="form-field__help">
-                  Se mostrará en secciones especiales de la tienda.
+                <p className="form-note">
+                  Los productos destacados se pueden usar en secciones especiales
+                  del home o de la tienda.
                 </p>
               </div>
-            </div>
 
-            <div className="form-field">
-              <label className="form-field__label" htmlFor="descripcion">
-                Descripción
-              </label>
-              <textarea
-                id="descripcion"
-                name="descripcion"
-                className="form-field__input"
-                rows={3}
-                value={form.descripcion}
-                onChange={handleChange}
-              />
-            </div>
-          </fieldset>
+              <div className="form-group">
+                <label className="form-label" htmlFor="descripcion">
+                  Descripción
+                </label>
+                <textarea
+                  id="descripcion"
+                  name="descripcion"
+                  className="form-input"
+                  rows={3}
+                  value={form.descripcion}
+                  onChange={handleChange}
+                />
+              </div>
+            </fieldset>
 
-          <div className="form-actions">
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={handleCancel}
-              disabled={saving}
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className="btn btn-primary"
-              onClick={handleSubmit}
-              disabled={saving}
-            >
-              {saving
-                ? 'Guardando...'
-                : editingId
-                ? 'Guardar cambios'
-                : 'Crear producto'}
-            </button>
-          </div>
+            <div className="form-actions">
+              <button
+                type="submit"
+                className="btn btn--primary"
+                disabled={saving}
+              >
+                {saving
+                  ? 'Guardando...'
+                  : editingId
+                    ? 'Guardar cambios'
+                    : 'Crear producto'}
+              </button>
+              <button
+                type="button"
+                className="btn btn--secondary"
+                onClick={handleCancel}
+                disabled={saving}
+              >
+                Cancelar
+              </button>
+            </div>
+          </form>
         </section>
       )}
 
-      {/* Tabla de productos */}
       {!loading && !error && (
         <section className="admin-table-wrapper">
           <table className="admin-table">
@@ -389,43 +427,62 @@ export default function AdminProducts() {
             <tbody>
               {filteredProducts.length === 0 ? (
                 <tr>
-                  <td colSpan={7}>
-                    No se encontraron productos.
-                  </td>
+                  <td colSpan={7}>No se encontraron productos.</td>
                 </tr>
               ) : (
                 filteredProducts.map((p) => (
                   <tr key={p.id}>
                     <td>{p.id}</td>
                     <td>
-                      <div style={{ fontWeight: 500 }}>{p.nombre}</div>
                       <div
                         style={{
-                          fontSize: '0.8rem',
-                          color: 'var(--color-text-light)',
+                          display: 'flex',
+                          gap: '0.75rem',
+                          alignItems: 'center',
                         }}
                       >
-                        {p.categoria_nombre || p.categoria || 'Sin categoría'}
+                        {p.imagen_url && (
+                          <img
+                            src={p.imagen_url}
+                            alt={p.nombre}
+                            style={{
+                              width: 48,
+                              height: 48,
+                              borderRadius: '999px',
+                              objectFit: 'cover',
+                              flexShrink: 0,
+                            }}
+                          />
+                        )}
+                        <div>
+                          <div style={{ fontWeight: 600 }}>{p.nombre}</div>
+                          <div
+                            style={{
+                              fontSize: '0.8rem',
+                              color: 'var(--color-text-light)',
+                            }}
+                          >
+                            {p.categoria || p.categoria_nombre || 'Sin categoría'}
+                          </div>
+                        </div>
                       </div>
                     </td>
                     <td>{formatCurrency(Number(p.precio || 0))}</td>
                     <td>{p.stock ?? '-'}</td>
-                    <td>
-                      {p.estado === 'publicado' ? 'Publicado' : 'Borrador'}
-                    </td>
+                    <td>{p.estado === 'publicado' ? 'Publicado' : 'Borrador'}</td>
                     <td>{p.es_destacado ? 'Sí' : 'No'}</td>
                     <td>
                       <div className="actions">
                         <button
                           type="button"
-                          className="btn btn-secondary btn-sm"
+                          className="btn btn--secondary btn--sm"
                           onClick={() => handleEdit(p)}
                         >
                           Editar
                         </button>
                         <button
                           type="button"
-                          className="btn btn-danger btn-sm"
+                          className="btn btn--outline-danger btn--sm"
                           onClick={() => handleDelete(p)}
                         >
                           Eliminar
@@ -439,6 +496,21 @@ export default function AdminProducts() {
           </table>
         </section>
       )}
-    </div>
+
+      <ConfirmModal
+        open={showDeleteModal}
+        title="Eliminar producto"
+        message={
+          productToDelete
+            ? `¿Seguro que deseas eliminar el producto "${productToDelete.nombre}"?`
+            : '¿Seguro que deseas eliminar este producto?'
+        }
+        onCancel={() => {
+          setShowDeleteModal(false);
+          setProductToDelete(null);
+        }}
+        onConfirm={confirmDelete}
+      />
+    </>
   );
 }

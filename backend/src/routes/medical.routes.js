@@ -1,18 +1,14 @@
-// src/routes/medical.routes.js
 import { Router } from 'express';
 import * as ctrl from '../controllers/medical.controller.js';
 import { requireAuth } from '../middleware/auth.js';
 import { requireRole } from '../middleware/roles.js';
 import { uploader } from '../utils/upload.js';
-import { pool } from '../config/db.js'; // <-- IMPORTANTE: AÑADIR ESTO
+import { pool } from '../config/db.js'; 
 
 const r = Router();
-// Acceso para Clientes (dueños) y Veterinarios/Admin
 const CLIENTE_VET_ROLES = ['cliente', 'admin', 'empleado_veterinario'];
-// Acceso solo para Veterinarios/Admin
 const VET_ROLES = ['admin', 'empleado_veterinario'];
 
-// --- Rutas de Mascotas (Cliente) ---
 r.get('/mis-mascotas', requireAuth, async (req, res, next) => {
   try {
     const { rows } = await pool.query(
@@ -28,7 +24,6 @@ r.get('/mis-mascotas', requireAuth, async (req, res, next) => {
   }
 });
 
-/* 🔹 NUEVA RUTA: Registrar una nueva mascota del cliente */
 r.post('/mascotas', requireAuth, async (req, res, next) => {
   try {
     const { nombre, especie, raza, edad, genero } = req.body;
@@ -60,7 +55,6 @@ r.post('/mascotas', requireAuth, async (req, res, next) => {
   }
 });
 
-// --- Rutas de Expediente (Cartilla) ---
 r.get('/pet/:id/expediente', requireAuth, ctrl.getExpedienteCompleto);
 r.post(
   '/pet/:id/expediente',
@@ -69,7 +63,6 @@ r.post(
   ctrl.createExpedienteInicial
 );
 
-// --- Vacunas ---
 r.get('/pet/:id/vacunas', requireAuth, ctrl.getVacunas);
 r.post(
   '/pet/:id/vacuna',
@@ -90,7 +83,6 @@ r.delete(
   ctrl.deleteVacuna
 );
 
-// --- Consultas ---
 r.get('/pet/:id/consultas', requireAuth, ctrl.getConsultas);
 r.post(
   '/pet/:id/consulta',
@@ -99,7 +91,6 @@ r.post(
   ctrl.addConsulta
 );
 
-// --- Medicamentos ---
 r.get('/pet/:id/medicamentos', requireAuth, ctrl.getMedicamentos);
 r.post(
   '/pet/:id/medicamento',
@@ -114,16 +105,14 @@ r.put(
   ctrl.updateMedicamento
 );
 
-// --- Peso ---
 r.get('/pet/:id/peso', requireAuth, ctrl.getPeso);
 r.post(
   '/pet/:id/peso',
   requireAuth,
-  requireRole(...CLIENTE_VET_ROLES), // Cliente puede registrar peso
+  requireRole(...CLIENTE_VET_ROLES), 
   ctrl.addPeso
 );
 
-// --- Alergias ---
 r.get('/pet/:id/alergias', requireAuth, ctrl.getAlergias);
 r.post(
   '/pet/:id/alergia',
@@ -132,22 +121,20 @@ r.post(
   ctrl.addAlergia
 );
 
-// --- Documentos ---
 r.get('/pet/:id/documentos', requireAuth, ctrl.getDocumentos);
 r.post(
   '/pet/:id/documento',
   requireAuth,
-  requireRole(...CLIENTE_VET_ROLES), // Cliente puede subir docs
+  requireRole(...CLIENTE_VET_ROLES), 
   uploader.single('file'),
   ctrl.addDocumento
 );
 
-// --- Alertas ---
 r.get('/pet/:id/alertas', requireAuth, ctrl.getAlertas);
 r.post(
   '/pet/:id/alerta',
   requireAuth,
-  requireRole(...CLIENTE_VET_ROLES), // Cliente puede crear alertas
+  requireRole(...CLIENTE_VET_ROLES),
   ctrl.addAlerta
 );
 r.put(

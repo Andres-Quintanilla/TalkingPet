@@ -1,14 +1,14 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import api from '../api/axios';
 
-const AuthCtx = createContext();
+const AuthCtx = createContext(null);
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
 
     const me = async () => {
         try {
-            const { data } = await api.get('/api/users/me');
+            const { data } = await api.get('/api/auth/me');
             setUser(data);
         } catch {
             setUser(null);
@@ -37,8 +37,12 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
     };
 
+    const updateUser = (patch) => {
+        setUser((prev) => (prev ? { ...prev, ...patch } : prev));
+    };
+
     return (
-        <AuthCtx.Provider value={{ user, login, register, logout }}>
+        <AuthCtx.Provider value={{ user, login, register, logout, updateUser }}>
             {children}
         </AuthCtx.Provider>
     );

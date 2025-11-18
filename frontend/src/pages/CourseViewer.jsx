@@ -1,17 +1,17 @@
-// src/pages/CourseViewer.jsx
 import { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import SEO from '../components/SEO';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { PlayCircle, CheckSquare } from 'lucide-react';
-// Instala: npm install react-player
-import ReactPlayer from 'react-player'; // <-- CORRECCIÓN: Se quita el '/youtube'
+import ReactPlayer from 'react-player';
 
 export default function CourseViewer() {
-  const { id } = useParams();
+  const { id } = useParams(); 
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
   const [curso, setCurso] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -26,7 +26,6 @@ export default function CourseViewer() {
       try {
         setLoading(true);
 
-        // 1. Verificar si estoy inscrito
         const { data: misCursos } = await api.get('/api/courses/mine');
         if (!misCursos.some((c) => c.curso_id === Number(id))) {
           setError('No estás inscrito en este curso.');
@@ -34,14 +33,21 @@ export default function CourseViewer() {
           return;
         }
 
-        // 2. Cargar datos del curso y contenido
         const { data: cursoData } = await api.get(`/api/courses/${id}`);
         setCurso(cursoData);
 
-        // 3. Poner el primer video como activo
+        let initial = null;
         if (cursoData.contenido && cursoData.contenido.length > 0) {
-          setActiveContent(cursoData.contenido[0]);
+          const initialId = location.state?.initialContentId;
+          if (initialId) {
+            initial =
+              cursoData.contenido.find((x) => x.id === initialId) ||
+              cursoData.contenido[0];
+          } else {
+            initial = cursoData.contenido[0];
+          }
         }
+        setActiveContent(initial);
 
         setError(null);
       } catch (err) {
@@ -52,7 +58,7 @@ export default function CourseViewer() {
       }
     };
     fetchCurso();
-  }, [id, user, navigate]);
+  }, [id, user, navigate, location.state]);
 
   if (loading) {
     return (
@@ -82,11 +88,10 @@ export default function CourseViewer() {
       <SEO
         title={`Viendo: ${curso.titulo}`}
         description="Plataforma de estudio TalkingPet"
-        noIndex={true} // No queremos indexar la página de visualización
+        noIndex={true}
       />
 
       <div className="course-viewer-layout">
-        {/* Sidebar de contenido */}
         <aside className="course-viewer-sidebar">
           <h2 className="course-viewer-sidebar__title">{curso.titulo}</h2>
           <div className="course-content-list">
@@ -118,7 +123,6 @@ export default function CourseViewer() {
           </div>
         </aside>
 
-        {/* Contenido principal (Video) */}
         <main className="course-viewer-main">
           {activeContent ? (
             <>
@@ -133,13 +137,11 @@ export default function CourseViewer() {
                     controls
                     width="100%"
                     height="100%"
-                    // --- AÑADIDO: Configuración para YouTube ---
                     config={{
                       youtube: {
                         playerVars: { showinfo: 1 },
                       },
                     }}
-                    // -----------------------------------------
                   />
                 </div>
               ) : (

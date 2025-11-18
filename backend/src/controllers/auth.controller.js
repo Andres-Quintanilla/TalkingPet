@@ -1,4 +1,3 @@
-// src/controllers/auth.controller.js
 import { pool } from '../config/db.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -8,16 +7,14 @@ const JWT_SECRET = process.env.JWT_SECRET || 'devsecret';
 const JWT_EXPIRES = process.env.JWT_EXPIRES || '7d';
 
 function sign(u) {
-  // --- MODIFICADO ---
   const payload = {
     id: u.id,
     nombre: u.nombre,
     email: u.email,
     rol: u.rol,
     saldo: u.saldo ?? 0,
-    tema: u.tema, // <-- AÑADIDO
+    tema: u.tema, 
   };
-  // ------------------
   const token = jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES });
   return { user: payload, token };
 }
@@ -39,7 +36,7 @@ export async function register(req, res, next) {
     const { rows } = await pool.query(
       `INSERT INTO usuario (nombre, email, telefono, contrasena)
        VALUES ($1,$2,$3,$4)
-       RETURNING id, nombre, email, rol, saldo, tema`, // <-- AÑADIDO tema
+       RETURNING id, nombre, email, rol, saldo, tema`, 
       [nombre, email, telefono || null, hash]
     );
     return res.status(201).json(sign(rows[0]));
@@ -91,10 +88,10 @@ export async function forgotPassword(req, res, next) {
       [emailOrUser]
     );
     const u = rows[0];
-    if (!u) return res.json({ ok: true }); // No revelar si el usuario existe
+    if (!u) return res.json({ ok: true }); 
 
     const token = crypto.randomBytes(24).toString('hex');
-    const expires = new Date(Date.now() + 1000 * 60 * 30); // 30 minutos
+    const expires = new Date(Date.now() + 1000 * 60 * 30); 
 
     await pool.query(
       `INSERT INTO password_reset (usuario_id, token, expires_at) VALUES ($1,$2,$3)`,
@@ -104,7 +101,7 @@ export async function forgotPassword(req, res, next) {
     const resetLink = `${
       process.env.PUBLIC_BASE_URL || 'http://localhost:5173'
     }/reset?token=${token}`;
-    console.log('[reset-link]', resetLink); // Simula envío de email
+    console.log('[reset-link]', resetLink); 
 
     return res.json({ ok: true });
   } catch (e) {

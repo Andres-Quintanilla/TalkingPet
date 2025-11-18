@@ -1,5 +1,3 @@
-// backend/src/services/aiChat.service.js
-
 import {
   obtenerProductosDestacados,
   obtenerServicios,

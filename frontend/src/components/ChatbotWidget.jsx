@@ -1,4 +1,3 @@
-// frontend/src/components/ChatbotWidget.jsx
 import { useState, useEffect, useRef } from 'react';
 import { MessageCircle, X, Send, ThumbsUp, ThumbsDown } from 'lucide-react';
 import api from '../api/axios';
@@ -14,7 +13,6 @@ export default function ChatbotWidget() {
   const [sessionId, setSessionId] = useState(null);
   const messagesEndRef = useRef(null);
 
-  // Scroll automático al último mensaje
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -23,7 +21,6 @@ export default function ChatbotWidget() {
     scrollToBottom();
   }, [messages]);
 
-  // Cargar sessionId del localStorage
   useEffect(() => {
     const storedSessionId = localStorage.getItem('tp_chat_session');
     if (storedSessionId) {
@@ -32,7 +29,6 @@ export default function ChatbotWidget() {
     }
   }, []);
 
-  // Cargar historial de conversación
   const loadHistory = async (sid) => {
     try {
       const { data } = await api.get(`/api/chat/history/${sid}`);
@@ -51,14 +47,12 @@ export default function ChatbotWidget() {
     }
   };
 
-  // Enviar mensaje
   const sendMessage = async () => {
     if (!input.trim() || loading) return;
 
     const userMessage = input.trim();
     setInput('');
 
-    // Agregar mensaje del usuario a la UI
     setMessages((prev) => [...prev, { role: 'user', content: userMessage }]);
     setLoading(true);
 
@@ -66,16 +60,14 @@ export default function ChatbotWidget() {
       const { data } = await api.post('/api/chat', {
         message: userMessage,
         sessionId: sessionId,
-        userId: user?.id, // Enviar userId si está autenticado
+        userId: user?.id, 
       });
 
-      // Guardar sessionId si es nuevo
       if (!sessionId && data.sessionId) {
         setSessionId(data.sessionId);
         localStorage.setItem('tp_chat_session', data.sessionId);
       }
 
-      // Agregar respuesta del bot
       setMessages((prev) => [
         ...prev,
         {
@@ -90,7 +82,7 @@ export default function ChatbotWidget() {
         ...prev,
         {
           role: 'assistant',
-          content: '❌ Lo siento, hubo un error. Intenta nuevamente.',
+          content: 'Lo siento, hubo un error. Intenta nuevamente.',
         },
       ]);
     } finally {
@@ -98,7 +90,6 @@ export default function ChatbotWidget() {
     }
   };
 
-  // Enviar feedback
   const sendFeedback = async (messageId, isUseful) => {
     try {
       await api.post('/api/chat/feedback', {
@@ -110,7 +101,6 @@ export default function ChatbotWidget() {
     }
   };
 
-  // Manejar Enter para enviar
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -118,7 +108,6 @@ export default function ChatbotWidget() {
     }
   };
 
-  // Mensaje de bienvenida inicial
   useEffect(() => {
     if (!isOpen) return;
     if (messages.length > 0) return;
@@ -156,7 +145,6 @@ export default function ChatbotWidget() {
 
   return (
     <>
-      {/* Botón flotante */}
       <button
         className={`chatbot-toggle ${isOpen ? 'chatbot-toggle--active' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
@@ -166,10 +154,8 @@ export default function ChatbotWidget() {
         {isOpen ? <X size={24} /> : <MessageCircle size={24} />}
       </button>
 
-      {/* Ventana del chat */}
       {isOpen && (
         <div className="chatbot-window">
-          {/* Header */}
           <div className="chatbot-header">
             <div className="chatbot-header__title">
               <MessageCircle size={20} />
@@ -184,7 +170,6 @@ export default function ChatbotWidget() {
             </button>
           </div>
 
-          {/* Mensajes */}
           <div className="chatbot-messages">
             {messages.map((msg, idx) => (
               <div
@@ -193,7 +178,6 @@ export default function ChatbotWidget() {
               >
                 <div className="chatbot-message__content">{msg.content}</div>
 
-                {/* Feedback para mensajes del asistente */}
                 {msg.role === 'assistant' && msg.messageId && (
                   <div className="chatbot-message__feedback">
                     <button
@@ -228,7 +212,6 @@ export default function ChatbotWidget() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input */}
           <div className="chatbot-input">
             <input
               type="text"
@@ -249,7 +232,6 @@ export default function ChatbotWidget() {
             </button>
           </div>
 
-          {/* Footer */}
           <div className="chatbot-footer">Powered by TalkingPet AI 🐾</div>
         </div>
       )}

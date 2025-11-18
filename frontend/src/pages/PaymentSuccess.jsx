@@ -1,4 +1,3 @@
-// src/pages/PaymentSuccess.jsx
 import { useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import SEO from '../components/SEO';
@@ -8,10 +7,9 @@ import { CheckCircle } from 'lucide-react';
 export default function PaymentSuccess() {
   const [searchParams] = useSearchParams();
   const orderId = searchParams.get('pid');
-  const { clear } = useCart(); // Llama a clear para limpiar el carrito
+  const { clear } = useCart(); 
 
   useEffect(() => {
-    // Limpiamos el carrito al cargar esta página
     clear();
   }, [clear]);
 

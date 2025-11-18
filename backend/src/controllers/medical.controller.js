@@ -1,4 +1,3 @@
-// backend/src/controllers/medical.controller.js
 import {
   obtenerExpedienteCompleto,
   crearExpedienteInicial,
@@ -22,10 +21,6 @@ import {
   completarAlerta
 } from '../services/medical-record.service.js';
 
-/**
- * GET /api/medical/pet/:id/expediente
- * Obtener expediente médico completo de una mascota
- */
 export async function getExpedienteCompleto(req, res) {
   try {
     const { id } = req.params;
@@ -43,7 +38,6 @@ export async function getExpedienteCompleto(req, res) {
 
     const expediente = resultado.data;
 
-    // Verificar permisos: solo dueño o admin
     if (userRole !== 'admin' && expediente.mascota.usuario_id !== userId) {
       return res.status(403).json({
         success: false,
@@ -65,10 +59,6 @@ export async function getExpedienteCompleto(req, res) {
   }
 }
 
-/**
- * POST /api/medical/pet/:id/expediente
- * Crear expediente inicial para una mascota
- */
 export async function createExpedienteInicial(req, res) {
   try {
     const { id } = req.params;
@@ -98,11 +88,6 @@ export async function createExpedienteInicial(req, res) {
   }
 }
 
-// ========== VACUNAS ==========
-
-/**
- * GET /api/medical/pet/:id/vacunas
- */
 export async function getVacunas(req, res) {
   try {
     const { id } = req.params;
@@ -129,9 +114,6 @@ export async function getVacunas(req, res) {
   }
 }
 
-/**
- * POST /api/medical/pet/:id/vacuna
- */
 export async function addVacuna(req, res) {
   try {
     const { id } = req.params;
@@ -166,9 +148,6 @@ export async function addVacuna(req, res) {
   }
 }
 
-/**
- * PUT /api/medical/vacuna/:vacunaId
- */
 export async function updateVacuna(req, res) {
   try {
     const { vacunaId } = req.params;
@@ -196,9 +175,6 @@ export async function updateVacuna(req, res) {
   }
 }
 
-/**
- * DELETE /api/medical/vacuna/:vacunaId
- */
 export async function deleteVacuna(req, res) {
   try {
     const { vacunaId } = req.params;
@@ -225,11 +201,6 @@ export async function deleteVacuna(req, res) {
   }
 }
 
-// ========== CONSULTAS ==========
-
-/**
- * GET /api/medical/pet/:id/consultas
- */
 export async function getConsultas(req, res) {
   try {
     const { id } = req.params;
@@ -256,9 +227,6 @@ export async function getConsultas(req, res) {
   }
 }
 
-/**
- * POST /api/medical/pet/:id/consulta
- */
 export async function addConsulta(req, res) {
   try {
     const { id } = req.params;
@@ -293,11 +261,6 @@ export async function addConsulta(req, res) {
   }
 }
 
-// ========== MEDICAMENTOS ==========
-
-/**
- * GET /api/medical/pet/:id/medicamentos
- */
 export async function getMedicamentos(req, res) {
   try {
     const { id } = req.params;
@@ -324,9 +287,6 @@ export async function getMedicamentos(req, res) {
   }
 }
 
-/**
- * POST /api/medical/pet/:id/medicamento
- */
 export async function addMedicamento(req, res) {
   try {
     const { id } = req.params;
@@ -361,9 +321,6 @@ export async function addMedicamento(req, res) {
   }
 }
 
-/**
- * PUT /api/medical/medicamento/:medicamentoId
- */
 export async function updateMedicamento(req, res) {
   try {
     const { medicamentoId } = req.params;
@@ -391,11 +348,6 @@ export async function updateMedicamento(req, res) {
   }
 }
 
-// ========== PESO ==========
-
-/**
- * GET /api/medical/pet/:id/peso
- */
 export async function getPeso(req, res) {
   try {
     const { id } = req.params;
@@ -422,9 +374,6 @@ export async function getPeso(req, res) {
   }
 }
 
-/**
- * POST /api/medical/pet/:id/peso
- */
 export async function addPeso(req, res) {
   try {
     const { id } = req.params;
@@ -459,11 +408,6 @@ export async function addPeso(req, res) {
   }
 }
 
-// ========== ALERGIAS ==========
-
-/**
- * GET /api/medical/pet/:id/alergias
- */
 export async function getAlergias(req, res) {
   try {
     const { id } = req.params;
@@ -490,9 +434,6 @@ export async function getAlergias(req, res) {
   }
 }
 
-/**
- * POST /api/medical/pet/:id/alergia
- */
 export async function addAlergia(req, res) {
   try {
     const { id } = req.params;
@@ -527,11 +468,6 @@ export async function addAlergia(req, res) {
   }
 }
 
-// ========== DOCUMENTOS ==========
-
-/**
- * GET /api/medical/pet/:id/documentos
- */
 export async function getDocumentos(req, res) {
   try {
     const { id } = req.params;
@@ -558,15 +494,12 @@ export async function getDocumentos(req, res) {
   }
 }
 
-/**
- * POST /api/medical/pet/:id/documento
- */
+
 export async function addDocumento(req, res) {
   try {
     const { id } = req.params;
     const userId = req.user.id;
     
-    // Archivo subido via multer en req.file
     if (!req.file) {
       return res.status(400).json({
         success: false,
@@ -610,11 +543,6 @@ export async function addDocumento(req, res) {
   }
 }
 
-// ========== ALERTAS ==========
-
-/**
- * GET /api/medical/pet/:id/alertas
- */
 export async function getAlertas(req, res) {
   try {
     const { id } = req.params;
@@ -641,9 +569,6 @@ export async function getAlertas(req, res) {
   }
 }
 
-/**
- * POST /api/medical/pet/:id/alerta
- */
 export async function addAlerta(req, res) {
   try {
     const { id } = req.params;
@@ -678,9 +603,6 @@ export async function addAlerta(req, res) {
   }
 }
 
-/**
- * PUT /api/medical/alerta/:alertaId/completar
- */
 export async function completeAlerta(req, res) {
   try {
     const { alertaId } = req.params;
